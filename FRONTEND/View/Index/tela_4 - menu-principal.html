@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Safe Bite - Menu Principal</title>
+    <link rel="stylesheet" href="../Estilos/global.css">
+    <link rel="stylesheet" href="../Estilos/tela_4 - menu-principal.css">
+</head>
+<body>
+
+    <!-- Cabeçalho -->
+    <header class="titulo" role="banner">
+        <button id="btn_menu_vertical" aria-expanded="false" aria-controls="menu_vertical"
+                class="menu-alternar" onclick="toggleMenu()" data-menu-button>
+            <img src="../Images/menu_vertical.png" alt="Abrir menu">
+        </button>
+
+        <div class="safe-bite" aria-hidden="false">
+            <img src="../Images/titulo.png" alt="Safe Bite">
+            <p><strong>Uma mordida sempre pode ser saudável!</strong></p>
+        </div>
+
+        <button id="btn_perfil" class="perfil" aria-label="Perfil" type="button" onclick="perfilClick()">
+            <img src="../Images/logo_minimalista.png" alt="Foto de perfil">
+        </button>
+    </header>
+
+    <div class="overlay" id="overlay" tabindex="-1" hidden onclick="closeMenu()"></div>
+
+    <!-- Menu Vertical -->
+    <nav class="menu_vertical" id="menu_vertical" aria-hidden="true" role="navigation">
+        <ul>
+            <li><a href="tela_4 - menu-principal.html">Início</a></li>
+            <li><a href="tela_5 - instrucoes.html">Instruções</a></li>
+            <li><a href="Tela_6 - receitas.html">Receitas</a></li>
+            <li><a href="Tela_7 - public.html">Publicações</a></li>
+            <li><a href="tela_8 - suporte.html">Suporte</a></li>
+        </ul>
+
+        <div class="devs">
+            <h3>Desenvolvedores:</h3>
+            <p>Amanda C. Olegário</p>
+            <p>Gabriel Sanches Martins</p>
+            <p>Luis Eduardo de Campos</p>
+            <p>Martha Vitória Guidetti da Silva</p>
+        </div>
+    </nav>
+
+    <!-- Conteúdo principal -->
+    <main class="text" role="main">
+        <h2>Introdução</h2>
+        <h3>Bem-vindo(a) ao Safe Bite!</h3>
+        <p>Se você lida com restrições alimentares—como intolerância à lactose, alergia ao glúten, 
+            diabetes, hipertensão ou até mesmo preferências pessoais. Você sabe como pode ser 
+            frustrante e arriscado encontrar receitas na internet que sejam verdadeiramente seguras 
+            e adaptadas para você. A falta de filtros eficientes em sites comuns pode levar a riscos 
+            à saúde, frustração e perda de tempo.</p>
+        <p>O Safe Bite nasceu para ser a solução definitiva para esse problema. Nossa missão é 
+            oferecer um ambiente confiável para consulta e compartilhamento de receitas. Nossa 
+            plataforma é totalmente personalizada: ao se cadastrar no início e informar suas 
+            restrições e ingredientes indesejados, você receberá uma lista de receitas 
+            automaticamente adaptadas ao seu perfil.</p>
+        <p>Aqui, você não apenas encontra opções compatíveis com suas necessidades, mas também 
+            promove sua segurança alimentar, melhora sua qualidade de vida e participa de uma 
+            comunidade que incentiva hábitos mais saudáveis e diversificados. Diga adeus à 
+            insegurança e comece a cozinhar com confiança. No Safe Bite, "uma mordida sempre pode 
+            ser saudável!".</p>
+        <p>Para começar, clique no menu e veja nosso tutorial feito especialmente para você!</p>
+    </main>
+
+    <!-- Botão Voltar: -->
+    <button id="btn_voltar" class="btn-voltar" onclick="goBack()" aria-label="Voltar">Voltar</button>
+
+    <script src="../Script/tela_4 - menu-principal.js"></script>
+
+    <footer>
+        <h4>"Ver a cozinha do Nelita pelas lentes dele, foi como enxergar meu próprio trabalho com outros olhos." - Tássia Magalhães.</h4>
+    </footer>    
+</body>
+</html>

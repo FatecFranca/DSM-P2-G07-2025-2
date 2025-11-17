@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Safe Bite - Registro de Receitas</title>
+    <link rel="stylesheet" href="../Estilos/global.css">
+    <link rel="stylesheet" href="../Estilos/Tela_7 - public.css">
+</head>
+<body>
+
+    <!-- Cabeçalho -->
+    <header class="titulo" role="banner">
+        <!-- Botão do menu: onclick explícito, aria-expanded e data-attribute -->
+        <button id="btn_menu_vertical" aria-expanded="false" aria-controls="menu_vertical"
+                class="menu-alternar" onclick="toggleMenu()" data-menu-button>
+            <img src="../Images/menu_vertical.png" alt="Abrir menu">
+        </button>
+
+        <!-- Área do título centralizada. Quando menu estiver aberto, será deslocada via JS/CSS -->
+        <div class="safe-bite" aria-hidden="false">
+            <img src="../Images/titulo.png" alt="Safe Bite">
+            <p><strong>Uma mordida sempre pode ser saudável!</strong></p>
+        </div>
+
+        <button id="btn_perfil" class="perfil" aria-label="Perfil" type="button" onclick="perfilClick()">
+            <img src="../Images/logo_minimalista.png" alt="Foto de perfil">
+        </button>
+    </header>
+
+    <!-- Overlay para cliques fora do menu -->
+    <div class="overlay" id="overlay" tabindex="-1" hidden onclick="closeMenu()"></div>
+
+    <!-- Menu Vertical -->
+     <!-- Adicionar rotas aos botões do menu! -->
+    <nav class="menu_vertical" id="menu_vertical" aria-hidden="true" role="navigation">
+        <ul>
+            <li><a href="tela_4 - menu-principal.html">Início</a></li>
+            <li><a href="tela_5 - instrucoes.html">Instruções</a></li>
+            <li><a href="Tela_6 - receitas.html">Receitas</a></li>
+            <li><a href="Tela_7 - public.html">Publicações</a></li>
+            <li><a href="tela_8 - suporte.html">Suporte</a></li>
+        </ul>
+
+        <div class="devs">
+            <h3>Desenvolvedores:</h3>
+            <p>Amanda C. Olegário</p>
+            <p>Gabriel Sanches Martins</p>
+            <p>Luis Eduardo de Campos</p>
+            <p>Martha Vitória Guidetti da Silva</p>
+        </div>
+    </nav>
+
+    <!-- Botão Voltar: Adicionar sua rota de "voltar" -->
+    <button id="btn_voltar" class="btn-voltar" onclick="goBack()" aria-label="Voltar">Voltar</button>
+
+    <!-- Conteúdo principal da página Registro de Receita -->
+    <main class="conteudo-registro-receita">
+        <h2>Registro de Receita</h2>
+
+        <form class="form-receita">
+            <!-- Foto -->
+            <div class="foto-receita">
+                <label for="foto">Foto da Receita:</label>
+                <div class="upload-area">
+                    <img src="../Images/icone_camera.jpg" alt="Adicionar foto" class="icone-camera">
+                    <input type="file" id="foto" name="foto" accept="image/*" hidden>
+                </div>
+            </div>
+
+            <!-- Propriedades -->
+            <div class="propriedades">
+                <label for="propriedades">Propriedades:</label>
+                <input type="text" id="propriedades" name="propriedades">
+            </div>
+
+            <!-- Nome -->
+            <div class="nome-receita">
+                <label for="nome">Nome da Receita:</label>
+                <input type="text" id="nome" name="nome">
+            </div>
+
+            <!-- Ingredientes -->
+            <div class="ingredientes">
+                <label for="ingredientes">Ingredientes:</label>
+                <textarea id="ingredientes" name="ingredientes"></textarea>
+            </div>
+
+            <!-- Tempo -->
+            <div class="tempo">
+                <label for="tempo">Tempo Estimado:</label>
+                <input type="text" id="tempo" name="tempo">
+            </div>
+
+            <!-- Modo de preparo -->
+            <div class="modo-preparo">
+                <label for="modo">Modo de Preparo:</label>
+                <textarea id="modo" name="modo"></textarea>
+            </div>
+
+            <!-- Restrições -->
+            <div class="restricoes">
+                <label for="restricoes">Restrições:</label>
+                <input type="text" id="restricoes" name="restricoes">
+            </div>
+
+            <!-- Botão Salvar -->
+            <button type="button" class="btn-salvar">Salvar</button>
+        </form>
+    </main>
+
+    <script src="../Script/Tela_7 - public.js"></script>
+
+    <footer>
+        <h4>"Ver a cozinha do Nelita pelas lentes dele, foi como enxergar meu próprio trabalho com outros olhos." - Tássia Magalhães.</h4>
+    </footer>    
+</body>
+</html>

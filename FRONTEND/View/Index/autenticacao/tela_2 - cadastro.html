@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cadastro - SafeBite</title>
+  <link rel="stylesheet" href="../../Estilos/tela_2 - cadastro.css">
+</head>
+<body class="tela-cadastro">
+  <a href="tela_1 - inicial.html" class="btn-voltar">Voltar</a>
+
+  <div class="form-container">  <img src="../../Images/logo.png"/>
+    <h2>Cadastre-se</h2>
+    <form action="tela_4 - restricoes.html" method="GET">
+      
+      <div class="input-group">
+        <i class="fa-solid fa-user"></i>
+        <input type="text" name="nome" placeholder="Nome completo" required />
+      </div>
+
+      <div class="input-group">
+        <i class="fa-solid fa-envelope"></i>
+        <input type="email" name="email" placeholder="E-mail válido" required />
+      </div>
+
+      <div class="input-group">
+        <i class="fa-solid fa-lock"></i>
+        <input type="password" name="senha" placeholder="Insira a senha" required />
+      </div>
+
+      <div class="input-group">
+        <i class="fa-solid fa-lock"></i>
+        <input type="password" name="confirmar" placeholder="Confirme a senha" required />
+      </div>
+
+      <label class="check-label">
+        <input type="checkbox" name="restricao" value="sim" />
+        Você tem alguma restrição alimentar?
+      </label>
+
+      <button type="submit" class="btn-grad">Avançar</button>
+    </form>
+  </div>
+</html>

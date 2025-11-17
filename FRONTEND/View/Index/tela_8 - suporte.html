@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Safe Bite - Suporte</title>
+    <link rel="stylesheet" href="../Estilos/global.css">
+    <link rel="stylesheet" href="../Estilos/tela_8 - suporte.css">
+</head>
+<body>
+
+    <!-- Cabeçalho -->
+    <header class="titulo" role="banner">
+        <button id="btn_menu_vertical" aria-expanded="false" aria-controls="menu_vertical"
+                class="menu-alternar" onclick="toggleMenu()" data-menu-button>
+            <img src="../Images/menu_vertical.png" alt="Abrir menu">
+        </button>
+
+        <div class="safe-bite" aria-hidden="false">
+            <img src="../Images/titulo.png" alt="Safe Bite">
+            <p><strong>Uma mordida sempre pode ser saudável!</strong></p>
+        </div>
+
+        <button id="btn_perfil" class="perfil" aria-label="Perfil" type="button" onclick="perfilClick()">
+            <img src="../Images/logo_minimalista.png" alt="Foto de perfil">
+        </button>
+    </header>
+
+    <div class="overlay" id="overlay" tabindex="-1" hidden onclick="closeMenu()"></div>
+
+    <!-- Menu Vertical -->
+    <nav class="menu_vertical" id="menu_vertical" aria-hidden="true" role="navigation">
+        <ul>
+            <li><a href="tela_4 - menu-principal.html">Início</a></li>
+            <li><a href="tela_5 - instrucoes.html">Instruções</a></li>
+            <li><a href="Tela_6 - receitas.html">Receitas</a></li>
+            <li><a href="Tela_7 - public.html">Publicações</a></li>
+            <li><a href="tela_8 - suporte.html">Suporte</a></li>
+        </ul>
+
+        <div class="devs">
+            <h3>Desenvolvedores:</h3>
+            <p>Amanda C. Olegário</p>
+            <p>Gabriel Sanches Martins</p>
+            <p>Luis Eduardo de Campos</p>
+            <p>Martha Vitória Guidetti da Silva</p>
+        </div>
+    </nav>
+
+    <!-- Conteúdo principal -->
+    <main class="text" role="main">
+        <h2>Suporte</h2>
+        <p>E-mail: alunofatec@gmail.com</p>
+        <p>Telefone: (XX) XXXXX-XXXX</p>
+
+        <p>E-mail: alunofatec@gmail.com</p>
+        <p>Telefone: (XX) XXXXX-XXXX</p>
+
+        <p>E-mail: alunofatec@gmail.com</p>
+        <p>Telefone: (XX) XXXXX-XXXX</p>
+        
+        <p>E-mail: alunofatec@gmail.com</p>
+        <p>Telefone: (XX) XXXXX-XXXX</p>        
+    </main>
+
+    <!-- Botão Voltar:  -->
+    <button id="btn_voltar" class="btn-voltar" onclick="goBack()" aria-label="Voltar">Voltar</button>
+
+    <script src="../Script/tela_8 - suporte.js"></script>
+    <footer>
+        <h4>"Ver a cozinha do Nelita pelas lentes dele, foi como enxergar meu próprio trabalho com outros olhos." - Tássia Magalhães.</h4>
+    </footer>    
+</body>
+</html>

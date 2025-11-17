@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Safe Bite - Tutorial</title>
+    <link rel="stylesheet" href="../Estilos/global.css">
+    <link rel="stylesheet" href="../Estilos/tela_5 - instrucoes.css">
+</head>
+<body>
+
+    <!-- Cabeçalho -->
+    <header class="titulo" role="banner">
+        <button id="btn_menu_vertical" aria-expanded="false" aria-controls="menu_vertical"
+                class="menu-alternar" onclick="toggleMenu()" data-menu-button>
+            <img src="../Images/menu_vertical.png" alt="Abrir menu">
+        </button>
+
+        <div class="safe-bite" aria-hidden="false">
+            <img src="../Images/titulo.png" alt="Safe Bite">
+            <p><strong>Uma mordida sempre pode ser saudável!</strong></p>
+        </div>
+
+        <button id="btn_perfil" class="perfil" aria-label="Perfil" type="button" onclick="perfilClick()">
+            <img src="../Images/logo_minimalista.png" alt="Foto de perfil">
+        </button>
+    </header>
+
+    <div class="overlay" id="overlay" tabindex="-1" hidden onclick="closeMenu()"></div>
+
+    <!-- Menu Vertical -->
+    <nav class="menu_vertical" id="menu_vertical" aria-hidden="true" role="navigation">
+        <ul>
+            <li><a href="tela_4 - menu-principal.html">Início</a></li>
+            <li><a href="tela_5 - instrucoes.html">Instruções</a></li>
+            <li><a href="Tela_6 - receitas.html">Receitas</a></li>
+            <li><a href="Tela_7 - public.html">Publicações</a></li>
+            <li><a href="tela_8 - suporte.html">Suporte</a></li>
+        </ul>
+
+        <div class="devs">
+            <h3>Desenvolvedores:</h3>
+            <p>Amanda C. Olegário</p>
+            <p>Gabriel Sanches Martins</p>
+            <p>Luis Eduardo de Campos</p>
+            <p>Martha Vitória Guidetti da Silva</p>
+        </div>
+    </nav>
+
+    <!-- Conteúdo principal -->
+    <main class="text" role="main">
+        <h2>Instruções</h2>
+            <p></p>
+        <h3>Passo 1: Termine de registrar suas informações no perfil!</h3>
+            <p>O segredo do Safe Bite é a personalização. Para isso: Vá ao seu perfil, Encontre a seção Perfil e dedique um minuto
+                 para preencher seus dados complementares (ex: telefone e idade) e se necessário edite o que for necessário nas 
+                 suas restrições, e-mail, senha ou até mesmo seu nome!  Além disso, você pode adicionar uma foto de perfil em 
+                 nosso site, só tome alguns cuidados na hora de preencher seus dados, editá-los ou adicionar fotos (fotos muito 
+                 grande não são aceitas). Ao salvar, suas informações serão salvas.</p>
+            <p>Para sair da conta é simples. Basta clicar no botão de "Sair" em vermelho e confirmar quando o pop-up aparecer na 
+                tela. Para adicionar uma nova conta basta clicar no botão "Adicionar nova conta" em verde e se cadastrar ou logar</p>
+        <h3>Passo 2: Encontre Receitas 100% Seguras.</h3>
+            <p>A navegação no Safe Bite é projetada para eliminar o risco de acidentes.</p>
+            <p>Busca Inteligente: Use a barra de pesquisa na aba Receitas para buscar por nome do prato, ingrediente principal ou 
+                categoria. O sistema sempre dará preferência a mostrar as receitas que são totalmente compatíveis com o seu perfil.</p>
+            <p>O Alerta Vermelho (Atenção!): Se uma receita contiver um ingrediente que você marcou como restrição, ela não será 
+                escondida, mas aparecerá com um ícone de alerta (⚠) ao lado. Assim, você sempre saberá exatamente o que evitar.</p>
+            <p>Visualização Pura: Se você preferir ver apenas o que é seguro, você pode usar a opção de "Ocultar receitas com alerta" 
+                no filtro. O resultado? Uma lista livre de possíveis riscos a sua saúde.</p>
+            <p>Recomendações na Home: Na sua página inicial, a seção "Recomendado para você" já será composta somente por receitas que 
+                respeitam 100% suas restrições.</p>
+        <h3>Passo 3: Cozinhe com Adaptação e Interaja.</h3>
+            <p>Ao clicar em uma receita, você tem mais do que apenas ingredientes e modo de preparo, existe outras funcionalidades, como:</p>
+            <p>Troca Fácil: Se a receita tiver um ingrediente perigoso, mas você a achou interessante, procure pela seção "Sugestões de 
+                Substitutos". O Safe Bite pode oferecer trocas inteligentes (ex: trocar leite integral por bebida vegetal de arroz), 
+                permitindo que você adapte o prato sem sair da segurança.</p>
+            <p>Opiniões da Comunidade: Ajude outros usuários e seja ajudado! Você pode avaliar as receitas e deixar comentários com suas 
+                dicas, adaptações ou perguntas sobre o prato.</p>
+        <h3>Passo 4: Publique Seus Próprios Pratos.</h3>
+            <p>Compartilhe Seu Conhecimento: Vá para a aba "Publicações" e use a opção para "Registrar Receita" ou "+". Preencha os campos 
+                com título, ingredientes, modo de preparo e o que mais for necessário, só não se esqueça das restrições!.</p>
+            <p>Deixe Visual: Você pode incluir até 5 imagens para mostrar o resultado final.</p>
+            <p>Seu Conteúdo, Suas Regras: Lembre-se, as receitas que você publica são suas. Apenas você terá a permissão para editar ou 
+                excluir seu conteúdo do site.</p>
+            <h3>Pronto! Comece a explorar e prepare-se para redescobrir o prazer de cozinhar sem medo. </h3>
+        </main>
+
+    <!-- Botão Voltar: -->
+    <button id="btn_voltar" class="btn-voltar" onclick="goBack()" aria-label="Voltar">Voltar</button>
+
+    <script src="../Script/tela_5 - instrucoes.js"></script>
+
+    <footer>
+        <h4>"Ver a cozinha do Nelita pelas lentes dele, foi como enxergar meu próprio trabalho com outros olhos." - Tássia Magalhães.</h4>
+    </footer>
+</body>
+</html>

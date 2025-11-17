@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Safe Bite - Suco Detox</title>
+    <link rel="stylesheet" href="../Estilos/global.css">
+    <link rel="stylesheet" href="../Estilos/Tela_7 - public.css">
+</head>
+<body>
+
+    <!-- Cabeçalho -->
+    <header class="titulo" role="banner">
+        <!-- Botão do menu: onclick explícito, aria-expanded e data-attribute -->
+        <button id="btn_menu_vertical" aria-expanded="false" aria-controls="menu_vertical"
+                class="menu-alternar" onclick="toggleMenu()" data-menu-button>
+            <img src="../Images/menu_vertical.png" alt="Abrir menu">
+        </button>
+
+        <!-- Área do título centralizada. Quando menu estiver aberto, será deslocada via JS/CSS -->
+        <div class="safe-bite" aria-hidden="false">
+            <img src="../Images/titulo.png" alt="Safe Bite">
+            <p><strong>Uma mordida sempre pode ser saudável!</strong></p>
+        </div>
+
+        <button id="btn_perfil" class="perfil" aria-label="Perfil" type="button" onclick="perfilClick()">
+            <img src="../Images/logo_minimalista.png" alt="Foto de perfil">
+        </button>
+    </header>
+
+    <!-- Overlay para cliques fora do menu -->
+    <div class="overlay" id="overlay" tabindex="-1" hidden onclick="closeMenu()"></div>
+
+    <!-- Menu Vertical -->
+     <!-- Adicionar rotas aos botões do menu! -->
+    <nav class="menu_vertical" id="menu_vertical" aria-hidden="true" role="navigation">
+        <ul>
+            <li><a href="tela_4 - menu-principal.html">Início</a></li>
+            <li><a href="tela_5 - instrucoes.html">Instruções</a></li>
+            <li><a href="Tela_6 - receitas.html">Receitas</a></li>
+            <li><a href="Tela_7 - public.html">Publicações</a></li>
+            <li><a href="tela_8 - suporte.html">Suporte</a></li>
+        </ul>
+
+        <div class="devs">
+            <h3>Desenvolvedores:</h3>
+            <p>Amanda C. Olegário</p>
+            <p>Gabriel Sanches Martins</p>
+            <p>Luis Eduardo de Campos</p>
+            <p>Martha Vitória Guidetti da Silva</p>
+        </div>
+    </nav>
+
+    <!-- Botão Voltar: Adicionar sua rota de "voltar" -->
+    <button id="btn_voltar" class="btn-voltar" onclick="goBack()" aria-label="Voltar">Voltar</button>
+
+    <!-- Conteúdo principal da pagina do Suco detox -->
+
+    <main class="conteudo-receita">
+        <section class="receita-container">
+            <h1 class="titulo-receita">Suco detox:<br>Limão, gengibre e abacaxi.</h1>
+
+            <div class="coluna-esquerda">
+                <div class="bloco-ingredientes">
+                    <h2>Ingredientes:</h2>
+                    <ul>
+                        <li>200 g de abacaxi fresco, sem casca e sem o miolo (equivalente a 2 fatias médias)</li>
+                        <li>Suco de 1 limão típico (± 30 ml suco de ½ a 1 limão, conforme o tamanho e a acidez desejada)</li>
+                        <li>20 g de gengibre fresco, raspado ou picado (cerca de 1 colher de sopa)</li>
+                        <li>300-350 ml de água gelada ou água de coco, para dar volume e refrescar</li>
+                        <li>Gelo a gosto (opcional)</li>
+                        <li>Mel ou adoçante natural opcional, se preferir mais doce (1 colher de chá máx.)</li>
+                    </ul>
+                </div>
+
+                <div class="bloco-modo-preparo">
+                    <h2>Modo de Preparo:</h2>
+                    <ol>
+                        <li>Corte o abacaxi em pedaços e coloque no liquidificador.</li>
+                        <li>Adicione o gengibre fresco e o suco de limão.</li>
+                        <li>Acrescente a água gelada (ou água de coco) e, se desejar, o mel ou adoçante natural.</li>
+                        <li>Bata bem até obter uma mistura homogênea, cerca de 1 a 2 minutos.</li>
+                        <li>Caso se queira a bebida mais lisa (opcional: algumas fibras deixam o suco mais nutritivo).</li>
+                        <li>Sirva com gelo, se preferir bem gelado.</li>
+                    </ol>
+                </div>
+            </div>
+
+            <div class="coluna-direita">
+                <div class="bloco-tempo">
+                    <h2>Tempo Estimado:</h2>
+                    <p>Preparo: ~5 a 10 minutos<br>Rendimento: ~1 copo de 400 ml</p>
+                </div>
+
+                <div class="bloco-propriedades">
+                    <h2>Propriedades:</h2>
+                    <ul>
+                        <li>Abacaxi: rico em bromelina e vitamina C, auxilia na digestão e tem ação anti-inflamatória.</li>
+                        <li>Limão: rico em vitamina C, contribui para a imunidade e detoxificação.</li>
+                        <li>Gengibre: anti-inflamatório, pode melhorar a digestão e acelerar o metabolismo.</li>
+                    </ul>
+                </div>
+
+                <div class="bloco-restricoes">
+                    <h2>Restrições:</h2>
+                    <ul>
+                        <li>Essa receita contém: Abacaxi, limão, gengibre, água, adoçantes artificiais, água de coco.</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="imagem-receita">
+                <img src="../Images/suco_detox.jpg" alt="Suco detox de limão, gengibre e abacaxi">
+            </div>
+
+        </section>
+    </main>
+
+    <script src="../Script/visualizacao-receita.js"></script>
+
+    <footer>
+        <h4>"Ver a cozinha do Nelita pelas lentes dele, foi como enxergar meu próprio trabalho com outros olhos." - Tássia Magalhães.</h4>
+    </footer>    
+</body>
+</html>
