@@ -22,7 +22,8 @@
         </div>
 
         <button id="btn_perfil" class="perfil" aria-label="Perfil" type="button" onclick="perfilClick()">
-            <img src="../Images/logo_minimalista.png" alt="Foto de perfil">
+            <img id="foto-perfil-header" src="" alt="Foto de perfil" style="display: none;">
+            <div id="iniciais-perfil-header" class="iniciais-perfil-header"></div>
         </button>
     </header>
 
@@ -47,6 +48,24 @@
         </div>
     </nav>
 
+    <!-- Modal de Restrições -->
+    <div id="modal-restricoes" class="modal-restricoes" aria-hidden="true" role="dialog" aria-labelledby="modal-restricoes-titulo">
+        <div class="modal-restricoes-overlay" onclick="fecharModalRestricoes()"></div>
+        <div class="modal-restricoes-content">
+            <div class="modal-restricoes-header">
+                <h2 id="modal-restricoes-titulo">Selecione sua restrição alimentar</h2>
+                <button class="modal-restricoes-close" onclick="fecharModalRestricoes()" aria-label="Fechar modal">×</button>
+            </div>
+            <div class="modal-restricoes-body" id="modal-restricoes-body">
+                <!-- Conteúdo será carregado dinamicamente -->
+                <div style="text-align: center; padding: 40px; color: #666;">Carregando restrições...</div>
+            </div>
+            <div class="modal-restricoes-footer">
+                <button id="btn-salvar-restricoes" class="btn-salvar-restricoes">Salvar</button>
+            </div>
+        </div>
+    </div>
+
     <!-- Conteúdo principal -->
     <main class="text" role="main">
         <h2>Introdução</h2>
@@ -69,10 +88,22 @@
         <p>Para começar, clique no menu e veja nosso tutorial feito especialmente para você!</p>
     </main>
 
-    <!-- Botão Voltar: -->
-    <button id="btn_voltar" class="btn-voltar" onclick="goBack()" aria-label="Voltar">Voltar</button>
-
+    <!-- Scripts necessários -->
+    <script src="../Script/config.js"></script>
+    <script src="../Script/api.service.js"></script>
+    <script src="../Script/utils.js"></script>
+    <script>
+      // Verificar autenticação antes de carregar a página
+      (function() {
+        const tokenKey = window.CONFIG?.STORAGE_KEYS?.TOKEN || 'safebite_token';
+        const token = localStorage.getItem(tokenKey);
+        if (!token) {
+          window.location.href = 'autenticacao/tela_1 - inicial.html';
+        }
+      })();
+    </script>
     <script src="../Script/tela_4 - menu-principal.js"></script>
+    <script src="../Script/modal-restricoes.js"></script>
 
     <footer>
         <h4>"Ver a cozinha do Nelita pelas lentes dele, foi como enxergar meu próprio trabalho com outros olhos." - Tássia Magalhães.</h4>

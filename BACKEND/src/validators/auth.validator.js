@@ -50,6 +50,12 @@ const registerSchema = Joi.object({
       'number.integer': 'A idade deve ser um número inteiro',
       'number.min': 'A idade deve ser um número positivo',
       'number.max': 'A idade deve ser um número válido'
+    }),
+  tem_restricao: Joi.boolean()
+    .optional()
+    .default(false)
+    .messages({
+      'boolean.base': 'tem_restricao deve ser um valor booleano (true/false)'
     })
 });
 

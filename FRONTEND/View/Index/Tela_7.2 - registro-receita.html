@@ -24,7 +24,8 @@
         </div>
 
         <button id="btn_perfil" class="perfil" aria-label="Perfil" type="button" onclick="perfilClick()">
-            <img src="../Images/logo_minimalista.png" alt="Foto de perfil">
+            <img id="foto-perfil-header" src="" alt="Foto de perfil" style="display: none;">
+            <div id="iniciais-perfil-header" class="iniciais-perfil-header"></div>
         </button>
     </header>
 
@@ -56,16 +57,18 @@
 
     <!-- Conteúdo principal da página Registro de Receita -->
     <main class="conteudo-registro-receita">
-        <h2>Registro de Receita</h2>
+        <h2 id="titulo-pagina">Registro de Receita</h2>
 
-        <form class="form-receita">
+        <form class="form-receita" id="form-receita">
             <!-- Foto -->
             <div class="foto-receita">
                 <label for="foto">Foto da Receita:</label>
-                <div class="upload-area">
-                    <img src="../Images/icone_camera.jpg" alt="Adicionar foto" class="icone-camera">
+                <div class="upload-area" id="upload-area">
+                    <img id="preview-imagem" src="../Images/icone_camera.jpg" alt="Adicionar foto" class="icone-camera" style="display: none;">
+                    <img id="placeholder-camera" src="../Images/icone_camera.jpg" alt="Adicionar foto" class="icone-camera">
                     <input type="file" id="foto" name="foto" accept="image/*" hidden>
                 </div>
+                <p id="nome-arquivo" style="margin-top: 0.5rem; font-size: 0.9rem; color: #666; display: none;"></p>
             </div>
 
             <!-- Propriedades -->
@@ -89,7 +92,13 @@
             <!-- Tempo -->
             <div class="tempo">
                 <label for="tempo">Tempo Estimado:</label>
-                <input type="text" id="tempo" name="tempo">
+                <input type="text" id="tempo" name="tempo" placeholder="Ex: 30 minutos">
+            </div>
+
+            <!-- Rendimento -->
+            <div class="rendimento">
+                <label for="rendimento">Rendimento:</label>
+                <input type="text" id="rendimento" name="rendimento" placeholder="Ex: 4 porções">
             </div>
 
             <!-- Modo de preparo -->
@@ -98,17 +107,45 @@
                 <textarea id="modo" name="modo"></textarea>
             </div>
 
-            <!-- Restrições -->
-            <div class="restricoes">
-                <label for="restricoes">Restrições:</label>
-                <input type="text" id="restricoes" name="restricoes">
+            <!-- Informação sobre detecção automática de restrições -->
+            <div class="restricoes-info" style="grid-column: 1 / -1; padding: 1rem; background: #f0f7ff; border-radius: 8px; border-left: 4px solid #667eea;">
+                <p style="margin: 0; font-size: 0.9rem; color: #555;">
+                    <strong>ℹ️ Informação:</strong> As restrições alimentares são detectadas automaticamente com base nos ingredientes da receita.
+                </p>
             </div>
 
+            <!-- Status -->
+            <div class="status-receita">
+                <label for="status">Status:</label>
+                <select id="status" name="status">
+                    <option value="rascunho">Rascunho</option>
+                    <option value="publicada">Publicada</option>
+                </select>
+            </div>
+
+            <!-- Mensagens de erro/sucesso -->
+            <div id="mensagem-form" style="grid-column: 1 / -1; display: none; padding: 1rem; border-radius: 8px; margin-top: 1rem;"></div>
+
             <!-- Botão Salvar -->
-            <button type="button" class="btn-salvar">Salvar</button>
+            <button type="button" class="btn-salvar" id="btn-salvar">Salvar</button>
         </form>
     </main>
 
+    <!-- Scripts necessários -->
+    <script src="../Script/config.js"></script>
+    <script src="../Script/api.service.js"></script>
+    <script src="../Script/utils.js"></script>
+    <script>
+      // Verificar autenticação antes de carregar a página
+      (function() {
+        const token = localStorage.getItem('safebite_token');
+        if (!token) {
+          window.location.href = 'autenticacao/tela_1 - inicial.html';
+        }
+      })();
+    </script>
+
+    <!-- Scripts -->
     <script src="../Script/Tela_7 - public.js"></script>
 
     <footer>

@@ -24,7 +24,8 @@
         </div>
 
         <button id="btn_perfil" class="perfil" aria-label="Perfil" type="button" onclick="perfilClick()">
-            <img src="../Images/logo_minimalista.png" alt="Foto de perfil">
+            <img id="foto-perfil-header" src="" alt="Foto de perfil" style="display: none;">
+            <div id="iniciais-perfil-header" class="iniciais-perfil-header"></div>
         </button>
     </header>
 
@@ -50,10 +51,6 @@
             <p>Martha Vitória Guidetti da Silva</p>
         </div>
     </nav>
-
-    <!-- Botão Voltar: Adicionar sua rota de "voltar" -->
-    <button id="btn_voltar" class="btn-voltar" onclick="goBack()" aria-label="Voltar">Voltar</button>
-
     <!-- Conteúdo principal da página Publicações -->
     <main class="conteudo-publicacoes">
 
@@ -70,9 +67,14 @@
         <!-- Seção: Receitas publicadas -->
         <section class="receitas-publicadas">
             <h2>Receitas publicadas</h2>
-            <div class="card-receita" onclick="abrirPopupReceita()">
-                <img src="../Images/suco_detox.jpg" alt="Suco detox de limão, gengibre e abacaxi">
-                <p>Suco detox: Limão, gengibre e abacaxi</p>
+            <div id="container-receitas" class="container-receitas">
+                <!-- Receitas serão carregadas dinamicamente aqui -->
+                <div id="loading-receitas" class="loading-message" style="display: none;">
+                    <p>Carregando suas receitas...</p>
+                </div>
+                <div id="mensagem-vazia" class="mensagem-vazia" style="display: none;">
+                    <p>Você ainda não publicou nenhuma receita.</p>
+                </div>
             </div>
         </section>
 
@@ -97,11 +99,24 @@
             <p>Opa! Você acabou de clicar em excluir receita, deseja isso mesmo?</p>
             <div class="popup-botoes">
                 <button class="btn-cancelar-exclusao" onclick="fecharPopupExcluir()">Cancelar</button>
-                <button class="btn-confirmar-exclusao">Excluir Receita</button>
+                <button class="btn-confirmar-exclusao" onclick="confirmarExclusaoReceita()">Excluir Receita</button>
             </div>
         </div>
     </div>
 
+    <!-- Scripts necessários -->
+    <script src="../Script/config.js"></script>
+    <script src="../Script/api.service.js"></script>
+    <script src="../Script/utils.js"></script>
+    <script>
+      // Verificar autenticação antes de carregar a página
+      (function() {
+        const token = localStorage.getItem('safebite_token');
+        if (!token) {
+          window.location.href = 'autenticacao/tela_1 - inicial.html';
+        }
+      })();
+    </script>
     <script src="../Script/Tela_7 - public.js"></script>
 
     <footer>

@@ -3,7 +3,7 @@ const RecipeRestriction = require('../models/RecipeRestriction');
 const RecipeRating = require('../models/RecipeRating');
 const RecipeFavorite = require('../models/RecipeFavorite');
 const UserRestriction = require('../models/UserRestriction');
-const { User } = require('../models');
+const { User, Restriction } = require('../models');
 const { Op } = require('sequelize');
 const fs = require('fs');
 const path = require('path');
@@ -48,15 +48,13 @@ const listRecipes = async (req, res) => {
     // Filtrar apenas receitas publicadas por padrão
     where.status = status;
 
-    // Busca por nome ou descrição
+    // Busca apenas por nome
     if (search) {
-      where[Op.or] = [
-        { nome: { [Op.iLike]: `%${search}%` } },
-        { descricao: { [Op.iLike]: `%${search}%` } }
-      ];
+      where.nome = { [Op.iLike]: `%${search}%` };
     }
 
     // Filtro por restrições específicas
+    // Nota: Como recipe_restrictions não tem FK para restrictions, vamos buscar por palavras-chave das restrições
     let recipeIdsByRestrictions = null;
     if (restrictions) {
       const restrictionIds = restrictions
@@ -65,29 +63,57 @@ const listRecipes = async (req, res) => {
         .filter(id => !isNaN(id) && id > 0);
 
       if (restrictionIds.length > 0) {
-        const recipeRestrictions = await RecipeRestriction.findAll({
-          where: {
-            restriction_id: { [Op.in]: restrictionIds }
-          },
-          attributes: ['recipe_id'],
-          raw: true
+        // Buscar as palavras-chave das restrições solicitadas
+        const restrictionDetails = await Restriction.findAll({
+          where: { id: { [Op.in]: restrictionIds } },
+          attributes: ['id', 'palavras_chave']
         });
 
-        // Obter IDs únicos de receitas
-        recipeIdsByRestrictions = [...new Set(recipeRestrictions.map(rr => rr.recipe_id))];
-
-        if (recipeIdsByRestrictions.length === 0) {
-          // Se não há receitas com essas restrições, retornar vazio
-          return res.json({
-            success: true,
-            data: [],
-            meta: {
-              total: 0,
-              page: parseInt(page, 10),
-              limit: parseInt(limit, 10),
-              totalPages: 0
+        // Extrair todas as palavras-chave para busca
+        const keywords = [];
+        restrictionDetails.forEach(r => {
+          if (r.palavras_chave) {
+            if (Array.isArray(r.palavras_chave)) {
+              keywords.push(...r.palavras_chave.map(k => k.toLowerCase()));
+            } else if (typeof r.palavras_chave === 'string') {
+              keywords.push(...r.palavras_chave.split(',').map(k => k.trim().toLowerCase()));
             }
+          }
+        });
+
+        if (keywords.length > 0) {
+          // Buscar receitas que têm esses ingredientes/palavras-chave
+          // Construir condições OR para cada palavra-chave
+          const conditions = [];
+          keywords.forEach(keyword => {
+            conditions.push({ ingrediente_restritivo: { [Op.iLike]: `%${keyword}%` } });
+            conditions.push({ palavras_chave: { [Op.iLike]: `%${keyword}%` } });
           });
+
+          const recipeRestrictions = await RecipeRestriction.findAll({
+            where: {
+              [Op.or]: conditions
+            },
+            attributes: ['recipe_id'],
+            raw: true
+          });
+
+          // Obter IDs únicos de receitas
+          recipeIdsByRestrictions = [...new Set(recipeRestrictions.map(rr => rr.recipe_id))];
+
+          if (recipeIdsByRestrictions.length === 0) {
+            // Se não há receitas com essas restrições, retornar vazio
+            return res.json({
+              success: true,
+              data: [],
+              meta: {
+                total: 0,
+                page: parseInt(page, 10),
+                limit: parseInt(limit, 10),
+                totalPages: 0
+              }
+            });
+          }
         }
       }
     }
@@ -290,39 +316,40 @@ const listRecipes = async (req, res) => {
  */
 const getRecipeById = async (req, res) => {
   try {
-    const recipeId = req.params.id;
+    const recipeId = parseInt(req.params.id, 10);
+    
+    // Validar ID
+    if (isNaN(recipeId) || recipeId <= 0) {
+      return res.status(400).json({ 
+        success: false, 
+        message: 'ID da receita inválido' 
+      });
+    }
+    
     const userId = req.user?.id; // Opcional, pode ser null se não autenticado
 
+    // Buscar receita com relacionamentos básicos
     const recipe = await Recipe.findByPk(recipeId, {
       include: [
         {
           model: User,
           as: 'author',
-          attributes: ['id', 'nome_completo', 'email', 'foto_perfil']
+          attributes: ['id', 'nome_completo', 'email', 'foto_perfil'],
+          required: false
         },
         {
           model: RecipeRating,
           as: 'ratings',
+          required: false,
           include: [
             {
               model: User,
               as: 'user',
-              attributes: ['id', 'nome_completo', 'foto_perfil']
+              attributes: ['id', 'nome_completo', 'foto_perfil'],
+              required: false
             }
           ],
           order: [['created_at', 'DESC']]
-        },
-        {
-          model: RecipeRestriction,
-          as: 'restrictions',
-          attributes: ['id', 'restriction_id', 'ingrediente_restritivo', 'palavras_chave'],
-          include: [
-            {
-              model: require('../models/Restriction'),
-              as: 'restriction',
-              attributes: ['id', 'nome']
-            }
-          ]
         }
       ]
     });
@@ -331,61 +358,256 @@ const getRecipeById = async (req, res) => {
       return res.status(404).json({ success: false, message: 'Receita não encontrada' });
     }
 
-    // Incrementar visualizações
-    recipe.visualizacoes = (recipe.visualizacoes || 0) + 1;
-    await recipe.save();
+    // Buscar restrições - usar campo JSON se disponível, senão usar tabela recipe_restrictions
+    let restrictions = [];
+    
+    logger.info(`🔍 Buscando restrições para receita ${recipeId}`);
+    logger.info(`📋 restricoes_detectadas:`, recipe.restricoes_detectadas);
+    
+    // Priorizar campo JSON restricoes_detectadas (nova solução simplificada)
+    if (recipe.restricoes_detectadas && Array.isArray(recipe.restricoes_detectadas) && recipe.restricoes_detectadas.length > 0) {
+      logger.info(`✅ Usando restricoes_detectadas (${recipe.restricoes_detectadas.length} itens)`);
+      // Buscar informações completas das restrições para obter palavras_chave
+      const restrictionIds = recipe.restricoes_detectadas
+        .map(r => r.restricao_id)
+        .filter(id => id != null);
+      
+      let restrictionsMap = {};
+      if (restrictionIds.length > 0) {
+        const restrictionsData = await Restriction.findAll({
+          where: { id: { [Op.in]: restrictionIds } },
+          attributes: ['id', 'nome', 'categoria', 'palavras_chave']
+        });
+        restrictionsData.forEach(r => {
+          restrictionsMap[r.id] = r;
+        });
+      }
+      
+      // Remover duplicatas baseado no restricao_id
+      const seenRestrictionIds = new Set();
+      restrictions = recipe.restricoes_detectadas
+        .filter(r => {
+          if (r.restricao_id && !seenRestrictionIds.has(r.restricao_id)) {
+            seenRestrictionIds.add(r.restricao_id);
+            return true;
+          }
+          return false;
+        })
+        .map(r => {
+          const restrictionData = restrictionsMap[r.restricao_id];
+          return {
+            id: null,
+            ingrediente_restritivo: r.ingrediente,
+            palavras_chave: restrictionData ? (restrictionData.palavras_chave || r.palavras_chave || []) : (r.palavras_chave || []),
+            restricao_id: r.restricao_id,
+            restricao_nome: r.restricao_nome || (restrictionData ? restrictionData.nome : null),
+            restriction: restrictionData ? {
+              id: restrictionData.id,
+              nome: restrictionData.nome,
+              categoria: restrictionData.categoria,
+              palavras_chave: restrictionData.palavras_chave || []
+            } : null
+          };
+        });
+    } else {
+      // Fallback: buscar da tabela recipe_restrictions (compatibilidade)
+      logger.info(`📋 Buscando da tabela recipe_restrictions`);
+      const recipeRestrictions = await RecipeRestriction.findAll({
+        where: { recipe_id: recipeId },
+        attributes: ['id', 'ingrediente_restritivo', 'restriction_id'],
+        include: [{
+          model: Restriction,
+          as: 'restriction',
+          attributes: ['id', 'nome', 'categoria', 'palavras_chave'],
+          required: false
+        }]
+      });
+      
+      logger.info(`📋 Encontradas ${recipeRestrictions.length} restrições na tabela`);
+      
+      // Remover duplicatas baseado no restriction_id
+      const seenRestrictionIds = new Set();
+      restrictions = recipeRestrictions
+        .filter(rr => {
+          if (rr.restriction_id && !seenRestrictionIds.has(rr.restriction_id)) {
+            seenRestrictionIds.add(rr.restriction_id);
+            return true;
+          }
+          return false;
+        })
+        .map(rr => ({
+          id: rr.id,
+          ingrediente_restritivo: rr.ingrediente_restritivo,
+          restriction_id: rr.restriction_id,
+          restricao_id: rr.restriction_id, // Alias para compatibilidade
+          restricao_nome: rr.restriction ? rr.restriction.nome : null,
+          palavras_chave: rr.restriction ? (rr.restriction.palavras_chave || []) : [],
+          restriction: rr.restriction ? {
+            id: rr.restriction.id,
+            nome: rr.restriction.nome,
+            categoria: rr.restriction.categoria,
+            palavras_chave: rr.restriction.palavras_chave || []
+          } : null
+        }));
+    }
+    
+    logger.info(`✅ Total de restrições encontradas: ${restrictions.length}`);
+
+    // Adicionar restrições ao objeto da receita
+    recipe.restrictions = restrictions;
+
+    // Incrementar visualizações (não bloquear se falhar)
+    try {
+      recipe.visualizacoes = (recipe.visualizacoes || 0) + 1;
+      await recipe.save();
+    } catch (saveErr) {
+      logger.warn('Erro ao incrementar visualizações', saveErr);
+      // Continuar mesmo se falhar ao salvar visualizações
+    }
 
     // Calcular média de avaliações
     const ratings = recipe.ratings || [];
     const averageRating =
-      ratings.length > 0 ? ratings.reduce((sum, r) => sum + r.rating, 0) / ratings.length : 0;
+      ratings.length > 0 
+        ? ratings.reduce((sum, r) => sum + (r.rating || 0), 0) / ratings.length 
+        : 0;
 
     // Verificar restrições do usuário (se autenticado)
+    // Nota: Como recipe_restrictions não tem FK para restrictions, vamos verificar por palavras-chave
     let hasRestrictionConflict = false;
     const conflictingRestrictions = [];
 
     if (userId && recipe.restrictions && recipe.restrictions.length > 0) {
-      // Obter IDs das restrições do usuário
-      const userRestrictionsData = await UserRestriction.findAll({
-        where: { user_id: userId },
-        attributes: ['restriction_id']
-      });
-
-      const userRestrictionIds = userRestrictionsData
-        .map(ur => ur.restriction_id)
-        .filter(id => id !== null);
-
-      // Verificar se a receita tem restrições que conflitam com as do usuário
-      const recipeRestrictionIds = recipe.restrictions
-        .map(rr => rr.restriction_id)
-        .filter(id => id !== null);
-
-      const conflicts = userRestrictionIds.filter(urId => recipeRestrictionIds.includes(urId));
-
-      if (conflicts.length > 0) {
-        hasRestrictionConflict = true;
-        // Buscar informações das restrições conflitantes
-        const Restriction = require('../models/Restriction');
-        const restrictionDetails = await Restriction.findAll({
-          where: { id: conflicts },
-          attributes: ['id', 'nome']
+      try {
+        // Obter restrições do usuário com suas palavras-chave
+        const userRestrictionsData = await UserRestriction.findAll({
+          where: { user_id: userId },
+          include: [
+            {
+              model: Restriction,
+              as: 'restriction',
+              attributes: ['id', 'nome', 'palavras_chave'],
+              required: false
+            }
+          ]
         });
 
-        conflictingRestrictions.push(
-          ...restrictionDetails.map(r => ({
-            restrictionId: r.id,
-            restrictionName: r.nome,
-            ingredient: recipe.restrictions.find(rr => rr.restriction_id === r.id)
-              ?.ingrediente_restritivo
-          }))
-        );
+        // Extrair todas as palavras-chave das restrições do usuário
+        const userKeywords = new Set();
+        userRestrictionsData.forEach(ur => {
+          if (ur.restriction && ur.restriction.palavras_chave) {
+            const keywords = Array.isArray(ur.restriction.palavras_chave) 
+              ? ur.restriction.palavras_chave 
+              : (typeof ur.restriction.palavras_chave === 'string' 
+                  ? ur.restriction.palavras_chave.split(',').map(k => k.trim().toLowerCase())
+                  : []);
+            keywords.forEach(k => userKeywords.add(k));
+          }
+          // Também verificar palavras-chave personalizadas do usuário
+          if (ur.palavras_chave_personalizadas) {
+            const customKeywords = typeof ur.palavras_chave_personalizadas === 'string'
+              ? ur.palavras_chave_personalizadas.split(',').map(k => k.trim().toLowerCase())
+              : [];
+            customKeywords.forEach(k => userKeywords.add(k));
+          }
+        });
+
+        // Verificar se algum ingrediente restritivo da receita corresponde às palavras-chave do usuário
+        recipe.restrictions.forEach(rr => {
+          const ingrediente = (rr.ingrediente_restritivo || '').toLowerCase();
+          const palavrasChave = Array.isArray(rr.palavras_chave)
+            ? rr.palavras_chave.map(k => k.toLowerCase())
+            : (typeof rr.palavras_chave === 'string'
+                ? rr.palavras_chave.split(',').map(k => k.trim().toLowerCase())
+                : []);
+
+          // Verificar se há correspondência
+          const hasMatch = userKeywords.has(ingrediente) || 
+                          palavrasChave.some(pk => userKeywords.has(pk)) ||
+                          Array.from(userKeywords).some(uk => ingrediente.includes(uk) || palavrasChave.some(pk => pk.includes(uk)));
+
+          if (hasMatch) {
+            hasRestrictionConflict = true;
+            conflictingRestrictions.push({
+              ingredient: rr.ingrediente_restritivo,
+              palavrasChave: palavrasChave
+            });
+          }
+        });
+      } catch (restrictionErr) {
+        logger.warn('Erro ao verificar restrições do usuário', restrictionErr);
+        // Continuar mesmo se falhar ao verificar restrições
       }
     }
+
+    // Converter para JSON de forma segura
+    let recipeData;
+    try {
+      recipeData = recipe.toJSON();
+      // Garantir que restricoes_detectadas está incluído
+      if (!recipeData.restricoes_detectadas) {
+        recipeData.restricoes_detectadas = recipe.restricoes_detectadas || [];
+      }
+      // Garantir que restrictions está incluído
+      if (!recipeData.restrictions) {
+        recipeData.restrictions = restrictions || [];
+      }
+    } catch (jsonErr) {
+      logger.error('Erro ao converter receita para JSON', jsonErr);
+      // Se toJSON falhar, construir manualmente
+      recipeData = {
+        id: recipe.id,
+        nome: recipe.nome,
+        descricao: recipe.descricao,
+        ingredientes: recipe.ingredientes,
+        modo_preparo: recipe.modo_preparo,
+        tempo_preparo: recipe.tempo_preparo,
+        rendimento: recipe.rendimento,
+        imagem_url: recipe.imagem_url,
+        status: recipe.status,
+        visualizacoes: recipe.visualizacoes,
+        created_at: recipe.created_at,
+        updated_at: recipe.updated_at,
+        user_id: recipe.user_id,
+        restricoes_detectadas: recipe.restricoes_detectadas || [],
+        author: recipe.author ? {
+          id: recipe.author.id,
+          nome_completo: recipe.author.nome_completo,
+          email: recipe.author.email,
+          foto_perfil: recipe.author.foto_perfil
+        } : null,
+        ratings: ratings.map(r => ({
+          id: r.id,
+          rating: r.rating,
+          comentario: r.comentario,
+          user: r.user ? {
+            id: r.user.id,
+            nome_completo: r.user.nome_completo,
+            foto_perfil: r.user.foto_perfil
+          } : null
+        })),
+        restrictions: restrictions.map(rr => ({
+          id: rr.id,
+          restriction_id: rr.restriction_id || rr.restricao_id || null,
+          restricao_id: rr.restriction_id || rr.restricao_id || null, // Alias para compatibilidade
+          ingrediente_restritivo: rr.ingrediente_restritivo,
+          palavras_chave: rr.palavras_chave || [],
+          restriction: rr.restriction ? {
+            id: rr.restriction.id,
+            nome: rr.restriction.nome,
+            categoria: rr.restriction.categoria,
+            palavras_chave: rr.restriction.palavras_chave || []
+          } : null
+        }))
+      };
+    }
+    
+    logger.info(`📤 Retornando receita com ${recipeData.restrictions?.length || 0} restrições`);
 
     return res.json({
       success: true,
       data: {
-        ...recipe.toJSON(),
+        ...recipeData,
         averageRating: Math.round(averageRating * 10) / 10,
         totalRatings: ratings.length,
         hasRestrictionConflict,
@@ -394,7 +616,12 @@ const getRecipeById = async (req, res) => {
     });
   } catch (err) {
     logger.error('Erro ao obter receita por ID', err);
-    return res.status(500).json({ success: false, message: 'Erro ao obter receita' });
+    logger.error('Stack trace:', err.stack);
+    return res.status(500).json({ 
+      success: false, 
+      message: 'Erro ao obter receita',
+      error: process.env.NODE_ENV === 'development' ? err.message : undefined
+    });
   }
 };
 
@@ -405,6 +632,26 @@ const getRecipeById = async (req, res) => {
 const createRecipe = async (req, res) => {
   try {
     const userId = req.user.id;
+    
+    // Processar restriction_ids do FormData (pode vir como array ou múltiplos campos)
+    let restriction_ids = req.body.restriction_ids;
+    if (restriction_ids) {
+      // Se for array, manter como está
+      if (Array.isArray(restriction_ids)) {
+        // Já está correto
+      } else if (typeof restriction_ids === 'string') {
+        // Se for string, tentar parsear JSON ou dividir por vírgula
+        try {
+          restriction_ids = JSON.parse(restriction_ids);
+        } catch {
+          restriction_ids = restriction_ids.split(',').map(id => id.trim()).filter(id => id);
+        }
+      } else {
+        // Se for um único valor, converter para array
+        restriction_ids = [restriction_ids];
+      }
+    }
+    
     const { titulo, descricao, ingredientes, modo_preparo, tempo_preparo, rendimento, status } =
       req.body;
 
@@ -462,22 +709,79 @@ const createRecipe = async (req, res) => {
       status: status || 'rascunho'
     });
 
-    // Extração e identificação de restrições
-    const extracted = extractIngredients(ingredientesArray);
-    const matches = await identifyRestrictionsFromIngredients(extracted);
+    // Extração e identificação automática de restrições
+      try {
+        const extracted = extractIngredients(ingredientesArray);
+        
+        // Validar ingredientes extraídos (filtrar valores muito longos que podem ser erros)
+        const validIngredients = extracted.filter(ing => ing && ing.length > 0 && ing.length <= 100);
+        
+        if (validIngredients.length > 0) {
+          const matches = await identifyRestrictionsFromIngredients(validIngredients);
 
-    if (matches && matches.length > 0) {
-      // Popular recipe_restrictions
-      for (const m of matches) {
-        await RecipeRestriction.create({
-          recipe_id: recipe.id,
-          restriction_id: m.restrictionId,
-          ingrediente_restritivo: m.ingrediente,
-          palavras_chave: JSON.stringify([m.matchedKeyword])
-        });
-      }
-      recipe.has_restriction_alert = true;
-      await recipe.save();
+          if (matches && matches.length > 0) {
+            // Remover duplicatas baseado no restriction_id
+            const uniqueMatches = [];
+            const seenRestrictionIds = new Set();
+            
+            for (const m of matches) {
+              if (m.restrictionId && !seenRestrictionIds.has(m.restrictionId)) {
+                seenRestrictionIds.add(m.restrictionId);
+                uniqueMatches.push(m);
+              }
+            }
+            
+            // Armazenar restrições detectadas no campo JSON da receita (solução simplificada)
+            const restricoesDetectadas = uniqueMatches.map(m => {
+              let ingredienteTexto = (m.ingrediente || '').trim();
+              
+              // Limitar tamanho do ingrediente
+              if (ingredienteTexto.length > 100) {
+                const palavras = ingredienteTexto.split(/\s+/).slice(0, 10);
+                ingredienteTexto = palavras.join(' ');
+              }
+              
+              return {
+                ingrediente: ingredienteTexto.substring(0, 255),
+                palavras_chave: [m.matchedKeyword],
+                restricao_id: m.restrictionId,
+                restricao_nome: m.restrictionName,
+                detectado_em: new Date().toISOString()
+              };
+            });
+
+            // Salvar no campo JSON da receita
+            recipe.restricoes_detectadas = restricoesDetectadas;
+            recipe.has_restriction_alert = true;
+            await recipe.save();
+
+            // Opcional: Também salvar na tabela recipe_restrictions para compatibilidade
+            // (pode ser removido depois se não for mais necessário)
+            for (const m of uniqueMatches) {
+              let ingredienteTexto = (m.ingrediente || '').trim();
+              if (ingredienteTexto.length > 100) {
+                const palavras = ingredienteTexto.split(/\s+/).slice(0, 10);
+                ingredienteTexto = palavras.join(' ');
+              }
+              ingredienteTexto = ingredienteTexto.substring(0, 255);
+              
+              if (ingredienteTexto.length > 0) {
+                try {
+                  await RecipeRestriction.create({
+                    recipe_id: recipe.id,
+                    restriction_id: m.restrictionId || null,
+                    ingrediente_restritivo: ingredienteTexto
+                  });
+                } catch (restrictionCreateErr) {
+                  logger.warn('Erro ao criar recipe_restriction (não crítico)', restrictionCreateErr);
+                }
+              }
+            }
+          }
+        }
+    } catch (restrictionErr) {
+      // Logar erro mas não falhar a criação da receita
+      logger.warn('Erro ao processar restrições da receita', restrictionErr);
     }
 
     return res.status(201).json({ success: true, data: recipe });
@@ -536,6 +840,25 @@ const updateRecipe = async (req, res) => {
       return res.status(403).json({ success: false, message: 'Não autorizado' });
     }
 
+    // Processar restriction_ids do FormData (pode vir como array ou múltiplos campos)
+    let restriction_ids = req.body.restriction_ids;
+    if (restriction_ids) {
+      // Se for array, manter como está
+      if (Array.isArray(restriction_ids)) {
+        // Já está correto
+      } else if (typeof restriction_ids === 'string') {
+        // Se for string, tentar parsear JSON ou dividir por vírgula
+        try {
+          restriction_ids = JSON.parse(restriction_ids);
+        } catch {
+          restriction_ids = restriction_ids.split(',').map(id => id.trim()).filter(id => id);
+        }
+      } else {
+        // Se for um único valor, converter para array
+        restriction_ids = [restriction_ids];
+      }
+    }
+    
     const { titulo, descricao, ingredientes, modo_preparo, tempo_preparo, rendimento, status } =
       req.body;
 
@@ -586,28 +909,82 @@ const updateRecipe = async (req, res) => {
       }
     }
 
-    await recipe.save();
+    // Atualizar restrições detectadas automaticamente
+    try {
+      const ingredientsArr = Array.isArray(recipe.ingredientes) ? recipe.ingredientes : [];
+      const validIngredients = ingredientsArr.filter(ing => ing && typeof ing === 'string' && ing.length > 0 && ing.length <= 100);
+      
+      if (validIngredients.length > 0) {
+        const extracted = extractIngredients(validIngredients);
+        const matches = await identifyRestrictionsFromIngredients(extracted);
 
-    // Atualizar recipe_restrictions
-    await RecipeRestriction.destroy({ where: { recipe_id: recipe.id } });
+        if (matches && matches.length > 0) {
+          // Remover duplicatas baseado no restriction_id
+          const uniqueMatches = [];
+          const seenRestrictionIds = new Set();
+          
+          for (const m of matches) {
+            if (m.restrictionId && !seenRestrictionIds.has(m.restrictionId)) {
+              seenRestrictionIds.add(m.restrictionId);
+              uniqueMatches.push(m);
+            }
+          }
+          
+          // Armazenar no campo JSON da receita
+          const restricoesDetectadas = uniqueMatches.map(m => {
+            let ingredienteTexto = (m.ingrediente || '').trim();
+            if (ingredienteTexto.length > 100) {
+              const palavras = ingredienteTexto.split(/\s+/).slice(0, 10);
+              ingredienteTexto = palavras.join(' ');
+            }
+            return {
+              ingrediente: ingredienteTexto.substring(0, 255),
+              palavras_chave: [m.matchedKeyword],
+              restricao_id: m.restrictionId,
+              restricao_nome: m.restrictionName,
+              detectado_em: new Date().toISOString()
+            };
+          });
 
-    const ingredientsArr = Array.isArray(recipe.ingredientes) ? recipe.ingredientes : [];
-    const extracted = extractIngredients(ingredientsArr);
-    const matches = await identifyRestrictionsFromIngredients(extracted);
+          recipe.restricoes_detectadas = restricoesDetectadas;
+          recipe.has_restriction_alert = true;
 
-    if (matches && matches.length > 0) {
-      for (const m of matches) {
-        await RecipeRestriction.create({
-          recipe_id: recipe.id,
-          restriction_id: m.restrictionId,
-          ingrediente_restritivo: m.ingrediente,
-          palavras_chave: JSON.stringify([m.matchedKeyword])
-        });
+            // Opcional: Também atualizar recipe_restrictions para compatibilidade
+            await RecipeRestriction.destroy({ where: { recipe_id: recipe.id } });
+            for (const m of uniqueMatches) {
+            let ingredienteTexto = (m.ingrediente || '').trim();
+            if (ingredienteTexto.length > 100) {
+              const palavras = ingredienteTexto.split(/\s+/).slice(0, 10);
+              ingredienteTexto = palavras.join(' ');
+            }
+            ingredienteTexto = ingredienteTexto.substring(0, 255);
+            if (ingredienteTexto.length > 0) {
+              try {
+                await RecipeRestriction.create({
+                  recipe_id: recipe.id,
+                  restriction_id: m.restrictionId || null,
+                  ingrediente_restritivo: ingredienteTexto
+                });
+              } catch (restrictionCreateErr) {
+                logger.warn('Erro ao criar recipe_restriction (não crítico)', restrictionCreateErr);
+              }
+            }
+          }
+        } else {
+          recipe.restricoes_detectadas = [];
+          recipe.has_restriction_alert = false;
+          // Limpar recipe_restrictions também
+          await RecipeRestriction.destroy({ where: { recipe_id: recipe.id } });
+        }
+      } else {
+        recipe.restricoes_detectadas = [];
+        recipe.has_restriction_alert = false;
+        await RecipeRestriction.destroy({ where: { recipe_id: recipe.id } });
       }
-      recipe.has_restriction_alert = true;
-    } else {
-      recipe.has_restriction_alert = false;
+    } catch (restrictionErr) {
+      logger.warn('Erro ao processar restrições na atualização', restrictionErr);
     }
+    
     await recipe.save();
 
     return res.json({ success: true, data: recipe });

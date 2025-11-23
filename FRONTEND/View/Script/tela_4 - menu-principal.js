@@ -68,6 +68,8 @@ function attachInteractiveEffects(element) {
     }, {passive: true});
 }
 
+// Usar função compartilhada do utils.js
+
 // --- Inicialização ---
 function init() {
     // Attach aos botões principais
@@ -98,13 +100,23 @@ function init() {
 
     // Garante que o overlay hidden esteja consistente no carregamento
     if (!menu.classList.contains('active')) {
-        overlay.hidden = true;
-        overlay.classList.remove('active');
-        body.classList.remove('menu-open');
-        btnMenu.setAttribute('aria-expanded', 'false');
-        menu.setAttribute('aria-hidden', 'true');
+      overlay.hidden = true;
+      overlay.classList.remove('active');
+      body.classList.remove('menu-open');
+      btnMenu.setAttribute('aria-expanded', 'false');
+      menu.setAttribute('aria-hidden', 'true');
     }
-}
+
+    // Carregar foto de perfil no header
+    setTimeout(() => {
+        if (window.carregarFotoPerfilHeader) {
+            carregarFotoPerfilHeader();
+        }
+    }, 100);
+  }
+
+  // Verificar se deve abrir modal de restrições automaticamente
+  // Isso será feito pelo modal-restricoes.js, mas podemos adicionar aqui também se necessário
 
 window.toggleMenu = toggleMenu;
 window.closeMenu = closeMenu;

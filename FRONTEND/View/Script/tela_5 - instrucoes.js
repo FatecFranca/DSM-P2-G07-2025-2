@@ -104,6 +104,13 @@ function init() {
         btnMenu.setAttribute('aria-expanded', 'false');
         menu.setAttribute('aria-hidden', 'true');
     }
+
+    // Carregar foto de perfil no header
+    setTimeout(() => {
+        if (window.carregarFotoPerfilHeader) {
+            carregarFotoPerfilHeader();
+        }
+    }, 100);
 }
 
 window.toggleMenu = toggleMenu;

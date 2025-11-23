@@ -90,6 +90,12 @@ const User = sequelize.define(
     data_expiracao_token: {
       type: DataTypes.DATE,
       allowNull: true
+    },
+    tem_restricao: {
+      type: DataTypes.BOOLEAN,
+      allowNull: false,
+      defaultValue: false,
+      comment: 'Indica se o usuário tem restrições alimentares'
     }
   },
   {

@@ -24,7 +24,8 @@
         </div>
 
         <button id="btn_perfil" class="perfil" aria-label="Perfil" type="button" onclick="perfilClick()">
-            <img src="../Images/logo_minimalista.png" alt="Foto de perfil">
+            <img id="foto-perfil-header" src="" alt="Foto de perfil" style="display: none;">
+            <div id="iniciais-perfil-header" class="iniciais-perfil-header"></div>
         </button>
     </header>
 
@@ -51,9 +52,6 @@
         </div>
     </nav>
 
-    <!-- Botão Voltar: Adicionar sua rota de "voltar" -->
-    <button id="btn_voltar" class="btn-voltar" onclick="goBack()" aria-label="Voltar">Voltar</button>
-
     <!-- Conteúdo principal da página Receitas -->
     <main class="conteudo-receitas">
         <!-- Barra de Pesquisa -->
@@ -78,68 +76,24 @@
 
         <!-- Grid de Receitas -->
         <div class="grid-receitas" id="grid-receitas">
-            <!-- Receita 1 -->
-            <div class="card-receita" data-receita-id="torrada-queijo-tomate">
-                <img src="../Images/torrada_queijo_tomate.jpg" alt="Torrada caseira com recheio de queijo coalho e tomate" onerror="this.src='../Images/suco_detox.jpg'">
-                <p class="nome-receita">Torrada caseira com recheio de queijo coalho e tomate</p>
-            </div>
-
-            <!-- Receita 2 -->
-            <div class="card-receita" data-receita-id="panqueca-frutas-vermelhas">
-                <img src="../Images/panqueca_frutas_vermelhas.jpg" alt="Panqueca Americana com frutas vermelhas" onerror="this.src='../Images/suco_detox.jpg'">
-                <p class="nome-receita">Panqueca Americana com frutas vermelhas</p>
-            </div>
-
-            <!-- Receita 3 -->
-            <div class="card-receita" data-receita-id="suco-detox">
-                <img src="../Images/suco_detox.jpg" alt="Suco detox: Limão, gengibre e abacaxi">
-                <p class="nome-receita">Suco detox: Limão, gengibre e abacaxi</p>
-            </div>
-
-            <!-- Receita 4 -->
-            <div class="card-receita" data-receita-id="carbonara">
-                <img src="../Images/carbonara.jpg" alt="Carbonnara italiano" onerror="this.src='../Images/suco_detox.jpg'">
-                <p class="nome-receita">Carbonnara italiano</p>
-            </div>
-
-            <!-- Receita 5 -->
-            <div class="card-receita" data-receita-id="feijoada">
-                <img src="../Images/feijoada.jpg" alt="Feijoada à moda brasileira" onerror="this.src='../Images/suco_detox.jpg'">
-                <p class="nome-receita">Feijoada à moda brasileira</p>
-            </div>
-
-            <!-- Receita 6 -->
-            <div class="card-receita" data-receita-id="sopa-abobora">
-                <img src="../Images/sopa_abobora.jpg" alt="Sopa de Abóbora" onerror="this.src='../Images/suco_detox.jpg'">
-                <p class="nome-receita">Sopa de Abóbora</p>
-            </div>
-
-            <!-- Receita 7 -->
-            <div class="card-receita" data-receita-id="arroz-carreteiro">
-                <img src="../Images/arroz_carreteiro.jpg" alt="Arroz carreteiro" onerror="this.src='../Images/suco_detox.jpg'">
-                <p class="nome-receita">Arroz carreteiro</p>
-            </div>
-
-            <!-- Receita 8 -->
-            <div class="card-receita" data-receita-id="bolo-cenoura">
-                <img src="../Images/bolo_cenoura.jpg" alt="Bolo de Cenoura" onerror="this.src='../Images/suco_detox.jpg'">
-                <p class="nome-receita">Bolo de Cenoura</p>
-            </div>
-
-            <!-- Receita 9 -->
-            <div class="card-receita" data-receita-id="caipirinha">
-                <img src="../Images/caipirinha.jpg" alt="Caipirinha Tradicional" onerror="this.src='../Images/suco_detox.jpg'">
-                <p class="nome-receita">Caipirinha Tradicional</p>
-            </div>
-
-            <!-- Receita 10 -->
-            <div class="card-receita" data-receita-id="pao-de-queijo">
-                <img src="../Images/pao_de_queijo.jpg" alt="Pão de queijo à moda mineiro" onerror="this.src='../Images/suco_detox.jpg'">
-                <p class="nome-receita">Pão de queijo à moda mineiro</p>
-            </div>
+            <!-- Receitas serão carregadas dinamicamente da API -->
+            <div style="text-align: center; padding: 40px; color: #666;">Carregando receitas...</div>
         </div>
     </main>
 
+    <!-- Scripts necessários -->
+    <script src="../Script/config.js"></script>
+    <script src="../Script/api.service.js"></script>
+    <script src="../Script/utils.js"></script>
+    <script>
+      // Verificar autenticação antes de carregar a página
+      (function() {
+        const token = localStorage.getItem('safebite_token');
+        if (!token) {
+          window.location.href = 'autenticacao/tela_1 - inicial.html';
+        }
+      })();
+    </script>
     <script src="../Script/Tela_6 - receitas.js"></script>
 
     <footer>

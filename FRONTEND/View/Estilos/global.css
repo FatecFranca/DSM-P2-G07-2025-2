@@ -130,13 +130,52 @@ body {
     justify-content: center;
     border-radius: 50%;
     transition: transform 0.2s ease, box-shadow 0.2s ease;
+    position: relative;
+    width: min(5.625rem, 12vw);
+    height: min(5.625rem, 12vw);
 }
 
 .perfil img {
-    width: min(5.625rem, 12vw); 
-    height: min(5.625rem, 12vw); 
+    width: 80%;
+    height: 80%;
     object-fit: cover;
     border-radius: 50%;
+    display: block;
+}
+
+/* Iniciais do nome quando não há foto no botão de perfil */
+.iniciais-perfil-header {
+    width: 80%;
+    height: 80%;
+    border-radius: 50%;
+    background: linear-gradient(150deg, #FFF8F8 0%, #F69518 100%);
+    border: 0.2rem solid black;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-family: 'Vast_Shadow', cursive;
+    font-size: clamp(1rem, 4vw, 1.5rem);
+    font-weight: bold;
+    color: black;
+    text-transform: uppercase;
+    letter-spacing: 0.05rem;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.perfil.has-photo .iniciais-perfil-header {
+    display: none;
+}
+
+.perfil.has-photo img {
+    display: block;
+}
+
+.perfil:not(.has-photo) img {
+    display: none;
+}
+
+.perfil:not(.has-photo) .iniciais-perfil-header {
+    display: flex;
 }
 
 /* Efeitos visuais controlados por JS */

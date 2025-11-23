@@ -211,6 +211,7 @@ const validateUploadOptional = async (req, res, next) => {
   next();
 };
 
+
 /**
  * Middleware para processar imagem após upload
  * Redimensiona e otimiza a imagem

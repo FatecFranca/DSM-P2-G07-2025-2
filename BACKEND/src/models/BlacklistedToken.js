@@ -6,7 +6,6 @@ const BlacklistedToken = sequelize.define(
   {
     id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
     token_hash: { type: DataTypes.STRING(128), allowNull: false, unique: true },
-    token_raw: { type: DataTypes.TEXT, allowNull: true },
     expires_at: { type: DataTypes.DATE, allowNull: true }
   },
   {

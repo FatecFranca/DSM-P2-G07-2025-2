@@ -34,6 +34,7 @@ const getProfile = async (req, res) => {
           telefone: user.telefone,
           idade: user.idade,
           foto_perfil: photoUrl,
+          tem_restricao: user.tem_restricao,
           email_verificado: user.email_verificado,
           created_at: user.created_at,
           updated_at: user.updated_at

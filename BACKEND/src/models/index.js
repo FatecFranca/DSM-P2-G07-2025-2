@@ -17,6 +17,16 @@ User.belongsToMany(Restriction, {
   as: 'restrictions'
 });
 
+RecipeRestriction.belongsTo(Restriction, { 
+  foreignKey: 'restriction_id', 
+  as: 'restriction' 
+});
+
+Restriction.hasMany(RecipeRestriction, { 
+  foreignKey: 'restriction_id', 
+  as: 'recipeRestrictions' 
+});
+
 // Relacionamentos Restriction
 Restriction.belongsToMany(User, {
   through: UserRestriction,
@@ -39,7 +49,7 @@ Recipe.belongsToMany(User, {
 
 // Relacionamentos RecipeRestriction
 RecipeRestriction.belongsTo(Recipe, { foreignKey: 'recipe_id', as: 'recipe' });
-RecipeRestriction.belongsTo(Restriction, { foreignKey: 'restriction_id', as: 'restriction' });
+// Nota: recipe_restrictions não tem FK para restrictions, apenas armazena ingrediente_restritivo e palavras_chave
 
 // Relacionamentos RecipeRating
 RecipeRating.belongsTo(Recipe, { foreignKey: 'recipe_id', as: 'recipe' });

@@ -11,34 +11,41 @@
 
   <div class="form-container">  <img src="../../Images/logo.png"/>
     <h2>Cadastre-se</h2>
-    <form action="tela_4 - restricoes.html" method="GET">
+    <form id="form-cadastro">
       
       <div class="input-group">
         <i class="fa-solid fa-user"></i>
-        <input type="text" name="nome" placeholder="Nome completo" required />
+        <input type="text" id="nome" placeholder="Nome completo" required />
       </div>
 
       <div class="input-group">
         <i class="fa-solid fa-envelope"></i>
-        <input type="email" name="email" placeholder="E-mail válido" required />
+        <input type="email" id="email" placeholder="E-mail válido" required />
       </div>
 
       <div class="input-group">
         <i class="fa-solid fa-lock"></i>
-        <input type="password" name="senha" placeholder="Insira a senha" required />
+        <input type="password" id="senha" placeholder="Insira a senha" required />
       </div>
 
       <div class="input-group">
         <i class="fa-solid fa-lock"></i>
-        <input type="password" name="confirmar" placeholder="Confirme a senha" required />
+        <input type="password" id="confirmar" placeholder="Confirme a senha" required />
       </div>
 
       <label class="check-label">
-        <input type="checkbox" name="restricao" value="sim" />
+        <input type="checkbox" id="tem-restricao" />
         Você tem alguma restrição alimentar?
       </label>
 
       <button type="submit" class="btn-grad">Avançar</button>
     </form>
   </div>
+
+  <!-- Scripts necessários -->
+  <script src="../../Script/config.js"></script>
+  <script src="../../Script/api.service.js"></script>
+  <script src="../../Script/utils.js"></script>
+  <script src="../../Script/cadastro.js"></script>
+</body>
 </html>

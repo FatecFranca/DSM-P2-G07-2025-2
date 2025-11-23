@@ -1,5 +1,4 @@
-const Restriction = require('../models/Restriction');
-const UserRestriction = require('../models/UserRestriction');
+const { Restriction, UserRestriction } = require('../models');
 const { Op } = require('sequelize');
 const logger = require('../utils/logger');
 
@@ -27,14 +26,84 @@ const getAllRestrictions = async (req, res) => {
 const getUserRestrictions = async (req, res) => {
   try {
     const userId = req.user.id;
+    
+    // Buscar usando raw: true para evitar problemas com getters
     const userRestrictions = await UserRestriction.findAll({
       where: { user_id: userId },
-      include: [{ model: Restriction, as: 'restriction' }]
+      include: [
+        {
+          model: Restriction,
+          as: 'restriction',
+          attributes: ['id', 'nome', 'categoria', 'palavras_chave'],
+          required: false
+        }
+      ],
+      raw: false // Manter false para ter acesso aos métodos do modelo
     });
-    return res.json({ success: true, data: userRestrictions });
+
+    // Converter para JSON de forma segura
+    const restrictionsData = userRestrictions.map(ur => {
+      try {
+        // Usar getDataValue para evitar problemas com getters
+        const palavrasChaveRaw = ur.getDataValue('palavras_chave_personalizadas');
+        
+        // Processar palavras_chave_personalizadas de forma segura
+        let palavrasChavePersonalizadas = [];
+        if (palavrasChaveRaw) {
+          if (typeof palavrasChaveRaw === 'string') {
+            try {
+              palavrasChavePersonalizadas = JSON.parse(palavrasChaveRaw);
+            } catch {
+              // Se não for JSON válido, tratar como string separada por vírgula
+              palavrasChavePersonalizadas = palavrasChaveRaw.split(',').map(p => p.trim()).filter(p => p);
+            }
+          } else if (Array.isArray(palavrasChaveRaw)) {
+            palavrasChavePersonalizadas = palavrasChaveRaw;
+          }
+        }
+        
+        // Obter dados da restrição relacionada
+        const restriction = ur.restriction;
+        const restrictionData = restriction ? {
+          id: restriction.id,
+          nome: restriction.nome,
+          categoria: restriction.categoria,
+          palavras_chave: restriction.palavras_chave || []
+        } : null;
+        
+        return {
+          id: ur.id,
+          user_id: ur.user_id,
+          restriction_id: ur.restriction_id,
+          palavras_chave_personalizadas: palavrasChavePersonalizadas,
+          created_at: ur.created_at,
+          updated_at: ur.updated_at,
+          restriction: restrictionData
+        };
+      } catch (mapErr) {
+        logger.warn('Erro ao processar restrição do usuário', mapErr);
+        logger.warn('Stack trace:', mapErr.stack);
+        // Retornar dados básicos mesmo se houver erro
+        return {
+          id: ur.id,
+          user_id: ur.user_id,
+          restriction_id: ur.restriction_id,
+          palavras_chave_personalizadas: [],
+          created_at: ur.created_at,
+          restriction: null
+        };
+      }
+    });
+
+    return res.json({ success: true, data: restrictionsData });
   } catch (err) {
     logger.error('Erro ao obter restrições do usuário', err);
-    return res.status(500).json({ success: false, message: 'Erro interno' });
+    logger.error('Stack trace:', err.stack);
+    return res.status(500).json({ 
+      success: false, 
+      message: 'Erro interno',
+      error: process.env.NODE_ENV === 'development' ? err.message : undefined
+    });
   }
 };
 

@@ -21,13 +21,28 @@ const extractIngredients = textOrArray => {
   if (!textOrArray) return [];
 
   if (Array.isArray(textOrArray)) {
-    return textOrArray.map(i => normalize(removeQty(i)));
+    // Filtrar e processar cada ingrediente
+    return textOrArray
+      .map(i => {
+        if (!i || typeof i !== 'string') return null;
+        // Limitar tamanho de cada ingrediente (máximo 100 caracteres)
+        const ingrediente = i.length > 100 ? i.substring(0, 100) : i;
+        return normalize(removeQty(ingrediente));
+      })
+      .filter(i => i && i.length > 0 && i.length <= 100); // Filtrar nulos e muito longos
   }
+  
+  // Se for string, tentar dividir por vírgulas ou quebras de linha
   const lines = textOrArray
-    .split(/\r?\n/)
+    .split(/[,\r?\n]/)
     .map(l => l.trim())
-    .filter(Boolean);
-  return lines.map(l => normalize(removeQty(l)));
+    .filter(Boolean)
+    .filter(l => l.length <= 100); // Filtrar linhas muito longas
+  
+  return lines.map(l => {
+    const normalized = normalize(removeQty(l));
+    return normalized.length <= 100 ? normalized : normalized.substring(0, 100);
+  });
 };
 
 const identifyRestrictionsFromIngredients = async ingredients => {

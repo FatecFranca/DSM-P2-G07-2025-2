@@ -94,6 +94,28 @@ const Recipe = sequelize.define(
         }
       }
     },
+    restricoes_detectadas: {
+      type: DataTypes.TEXT,
+      allowNull: true,
+      get() {
+        const value = this.getDataValue('restricoes_detectadas');
+        if (!value) return [];
+        try {
+          return JSON.parse(value);
+        } catch {
+          return [];
+        }
+      },
+      set(value) {
+        if (Array.isArray(value)) {
+          this.setDataValue('restricoes_detectadas', JSON.stringify(value));
+        } else if (typeof value === 'string') {
+          this.setDataValue('restricoes_detectadas', value);
+        } else {
+          this.setDataValue('restricoes_detectadas', JSON.stringify([]));
+        }
+      }
+    },
     imagem_url: {
       type: DataTypes.STRING,
       allowNull: true

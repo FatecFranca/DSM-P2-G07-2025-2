@@ -25,6 +25,7 @@ body.menu-open .perfil-container {
     justify-content: center;
     align-items: center;
     margin-bottom: var(--spacing-md);
+    position: relative;
 }
 
 .perfil-foto img {
@@ -32,10 +33,55 @@ body.menu-open .perfil-container {
     height: 11rem;
     border-radius: 50%;
     object-fit: cover;
+    display: block;
+    cursor: pointer;
+    transition: transform 0.3s ease;
 }
 
 .perfil-foto img:hover {
     transform: scale(1.03);
+}
+
+/* Iniciais do nome quando não há foto */
+.iniciais-perfil {
+    width: 11rem;
+    height: 11rem;
+    border-radius: 50%;
+    background: linear-gradient(150deg, #FFF8F8 0%, #F69518 100%);
+    border: 0.2rem solid black;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-family: 'Vast_Shadow', cursive;
+    font-size: 3.5rem;
+    font-weight: bold;
+    color: black;
+    text-transform: uppercase;
+    letter-spacing: 0.1rem;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    cursor: pointer;
+}
+
+.iniciais-perfil:hover {
+    transform: scale(1.03);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+}
+
+.perfil-foto.has-photo .iniciais-perfil {
+    display: none;
+}
+
+.perfil-foto.has-photo img {
+    display: block;
+}
+
+.perfil-foto:not(.has-photo) img {
+    display: none;
+}
+
+.perfil-foto:not(.has-photo) .iniciais-perfil {
+    display: flex;
 }
 
 /* Nome e botão Editar na mesma linha */

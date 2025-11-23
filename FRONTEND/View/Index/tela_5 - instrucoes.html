@@ -22,7 +22,8 @@
         </div>
 
         <button id="btn_perfil" class="perfil" aria-label="Perfil" type="button" onclick="perfilClick()">
-            <img src="../Images/logo_minimalista.png" alt="Foto de perfil">
+            <img id="foto-perfil-header" src="" alt="Foto de perfil" style="display: none;">
+            <div id="iniciais-perfil-header" class="iniciais-perfil-header"></div>
         </button>
     </header>
 
@@ -85,9 +86,19 @@
             <h3>Pronto! Comece a explorar e prepare-se para redescobrir o prazer de cozinhar sem medo. </h3>
         </main>
 
-    <!-- Botão Voltar: -->
-    <button id="btn_voltar" class="btn-voltar" onclick="goBack()" aria-label="Voltar">Voltar</button>
-
+    <!-- Scripts necessários -->
+    <script src="../Script/config.js"></script>
+    <script src="../Script/api.service.js"></script>
+    <script src="../Script/utils.js"></script>
+    <script>
+      // Verificar autenticação antes de carregar a página
+      (function() {
+        const token = localStorage.getItem('safebite_token');
+        if (!token) {
+          window.location.href = 'autenticacao/tela_1 - inicial.html';
+        }
+      })();
+    </script>
     <script src="../Script/tela_5 - instrucoes.js"></script>
 
     <footer>

@@ -11,16 +11,16 @@
 
   <div class="form-container">  <img src="../../Images/logo.png"/>
     <h2>Login</h2>
-    <form action="../tela_4 - menu-principal.html" method="GET">
+    <form id="form-login">
       
       <div class="input-group">
         <i class="fa-solid fa-user"></i>
-        <input type="text" name="nome" placeholder="Insira User/email" required />
+        <input type="email" id="email" placeholder="Insira seu email" />
       </div>
 
       <div class="input-group">
         <i class="fa-solid fa-lock"></i>
-        <input type="password" name="confirmar" placeholder="Insira a senha" required />
+        <input type="password" id="senha" placeholder="Insira a senha" />
       </div>
       <label>
         <a href="tela_6 - confemail.html" style="color: inherit; text-decoration: underline;">Esqueceu sua senha? Clique aqui!</a>
@@ -29,5 +29,11 @@
       <button type="submit" class="btn-grad">Concluir</button>
     </form>
   </div>
+
+  <!-- Scripts necessários -->
+  <script src="../../Script/config.js"></script>
+  <script src="../../Script/api.service.js"></script>
+  <script src="../../Script/utils.js"></script>
+  <script src="../../Script/login.js"></script>
 </body>
 </html>

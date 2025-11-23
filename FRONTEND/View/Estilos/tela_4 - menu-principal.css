@@ -1,2 +1,208 @@
 /* Estilos específicos para o menu principal */
 /* Os estilos comuns estão no global.css */
+
+/* Modal de Restrições */
+.modal-restricoes {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 10000;
+  animation: fadeIn 0.3s ease;
+}
+
+.modal-restricoes.active {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.modal-restricoes-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(3px);
+}
+
+.modal-restricoes-content {
+  position: relative;
+  background: white;
+  border-radius: 20px;
+  max-width: 600px;
+  width: 90%;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+  z-index: 10001;
+  display: flex;
+  flex-direction: column;
+}
+
+.modal-restricoes-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 25px;
+  border-bottom: 2px solid #f0f0f0;
+  position: sticky;
+  top: 0;
+  background: white;
+  z-index: 10;
+  border-radius: 20px 20px 0 0;
+}
+
+.modal-restricoes-header h2 {
+  margin: 0;
+  font-size: 1.5rem;
+  color: #333;
+}
+
+.modal-restricoes-close {
+  background: none;
+  border: none;
+  font-size: 2rem;
+  color: #666;
+  cursor: pointer;
+  padding: 0;
+  width: 35px;
+  height: 35px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: all 0.2s;
+}
+
+.modal-restricoes-close:hover {
+  background: #f0f0f0;
+  color: #333;
+}
+
+.modal-restricoes-body {
+  padding: 25px;
+  flex: 1;
+  overflow-y: auto;
+}
+
+.modal-restricoes-body .card {
+  background: none;
+  box-shadow: none;
+  padding: 0;
+  margin: 0;
+}
+
+.modal-restricoes-body details {
+  margin-bottom: 15px;
+  border: 1px solid #e0e0e0;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.modal-restricoes-body details summary {
+  padding: 15px 20px;
+  background: #f8f8f8;
+  cursor: pointer;
+  font-weight: 600;
+  list-style: none;
+  transition: background 0.2s;
+}
+
+.modal-restricoes-body details summary:hover {
+  background: #f0f0f0;
+}
+
+.modal-restricoes-body details summary::-webkit-details-marker {
+  display: none;
+}
+
+.modal-restricoes-body details summary::before {
+  content: '▶';
+  margin-right: 10px;
+  transition: transform 0.2s;
+  display: inline-block;
+}
+
+.modal-restricoes-body details[open] summary::before {
+  transform: rotate(90deg);
+}
+
+.modal-restricoes-body .options {
+  padding: 15px 20px;
+  background: white;
+}
+
+.modal-restricoes-body .options label {
+  display: block;
+  padding: 10px 0;
+  cursor: pointer;
+  transition: color 0.2s;
+}
+
+.modal-restricoes-body .options label:hover {
+  color: #FF512F;
+}
+
+.modal-restricoes-body .options input[type="checkbox"] {
+  margin-right: 10px;
+  cursor: pointer;
+}
+
+.modal-restricoes-footer {
+  padding: 20px 25px;
+  border-top: 2px solid #f0f0f0;
+  display: flex;
+  justify-content: flex-end;
+  position: sticky;
+  bottom: 0;
+  background: white;
+  border-radius: 0 0 20px 20px;
+}
+
+.btn-salvar-restricoes {
+  background-image: linear-gradient(to right, #FF512F 0%, #F09819 51%, #FF512F 100%);
+  background-size: 200% auto;
+  padding: 12px 30px;
+  border: none;
+  border-radius: 25px;
+  color: white;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.3s;
+  box-shadow: 0 4px 15px rgba(255, 81, 47, 0.3);
+}
+
+.btn-salvar-restricoes:hover {
+  background-position: right center;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(255, 81, 47, 0.4);
+}
+
+.btn-salvar-restricoes:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+#aviso-obrigatorio {
+  background: #fff3cd;
+  border: 1px solid #ffc107;
+  border-radius: 8px;
+  padding: 15px;
+  margin-bottom: 20px;
+  color: #856404;
+  text-align: center;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}

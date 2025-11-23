@@ -20,7 +20,23 @@ const logger = require('../utils/logger');
  */
 const register = async (req, res) => {
   try {
-    const { nome_completo, email, senha, telefone, idade } = req.body;
+    // Log completo do body recebido
+    logger.info('Body completo recebido:', JSON.stringify(req.body));
+    logger.info('Keys do body:', Object.keys(req.body || {}));
+    
+    const { nome_completo, email, senha, telefone, idade, tem_restricao } = req.body;
+
+    // Log para debug
+    logger.info('Campos extraídos', { 
+      nome_completo: !!nome_completo,
+      email, 
+      senha: !!senha,
+      tem_restricao, 
+      tipo: typeof tem_restricao,
+      valor_bruto: tem_restricao,
+      telefone,
+      idade
+    });
 
     // Verificar se o email já existe
     const existingUser = await User.findOne({ where: { email } });
@@ -39,6 +55,24 @@ const register = async (req, res) => {
     const verificationToken = generateResetToken();
     const expirationDate = generateExpirationDate(24); // Expira em 24 horas
 
+    // Converter tem_restricao para boolean
+    // Pode vir como true, 'true', 1, '1', ou false
+    let temRestricaoValue = false;
+    if (tem_restricao !== undefined && tem_restricao !== null) {
+      if (typeof tem_restricao === 'boolean') {
+        temRestricaoValue = tem_restricao;
+      } else if (typeof tem_restricao === 'string') {
+        temRestricaoValue = tem_restricao.toLowerCase() === 'true' || tem_restricao === '1';
+      } else if (typeof tem_restricao === 'number') {
+        temRestricaoValue = tem_restricao === 1;
+      }
+    }
+
+    logger.info('tem_restricao processado', { 
+      valor_original: tem_restricao,
+      valor_processado: temRestricaoValue 
+    });
+
     // Criar usuário
     const user = await User.create({
       nome_completo,
@@ -46,8 +80,15 @@ const register = async (req, res) => {
       senha_hash,
       telefone: telefone || null,
       idade: idade || null,
+      tem_restricao: temRestricaoValue,
       token_verificacao_email: verificationToken,
       data_expiracao_token: expirationDate
+    });
+
+    logger.info('Usuário criado', { 
+      userId: user.id, 
+      email: user.email,
+      tem_restricao: user.tem_restricao 
     });
 
     // Enviar emails (não bloqueiam a resposta)
@@ -76,6 +117,7 @@ const register = async (req, res) => {
           email: user.email,
           telefone: user.telefone,
           idade: user.idade,
+          tem_restricao: user.tem_restricao,
           email_verificado: user.email_verificado,
           created_at: user.created_at
         },
@@ -160,6 +202,7 @@ const login = async (req, res) => {
           telefone: user.telefone,
           idade: user.idade,
           foto_perfil: user.foto_perfil,
+          tem_restricao: user.tem_restricao,
           email_verificado: user.email_verificado,
           created_at: user.created_at
         },
@@ -571,7 +614,6 @@ const logout = async (req, res) => {
 
     await BlacklistedToken.create({
       token_hash: require('crypto').createHash('sha256').update(token).digest('hex'),
-      token_raw: token, // opcional, se quiser armazenar
       expires_at: expiresAt
     });
 
