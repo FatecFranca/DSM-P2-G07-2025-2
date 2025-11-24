@@ -1,6 +1,18 @@
 # DSM-P2-G07-2025-2
 Grupo 07  2o. ciclo DSM PI - 2025 - 2 - SafeBite
 
+Nomes dos integrantes:
+Amanda Cristina Olegário; 
+Gabriel Sanches Martins; 
+Luis Eduardo de Campos; 
+Martha Vitória Guidetti da Silva
+
+Navegação do protótipo Figma:
+https://www.figma.com/design/qnOV036sH4iD71Agkb2LJD/SafeBite?node-id=0-1&t=NWqgevO9YJhbBtrB-1
+
+Link video de apresentação do projeto Youtube:
+https://youtu.be/m4lbFGm2LUM
+
 # SAFEBITEPI_BACKEND
 
 Backend da aplicação SafeBite - Plataforma de receitas com foco em restrições alimentares.
