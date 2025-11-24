@@ -1,13 +1,9 @@
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap');
 
 img {
-  width: 100px
-  ;
+  width: 100px;
 }
 .voltar {
-  position: fixed;
-  top: 20px;
-  left: 20px;
   position: absolute;
   top: 20px;
   left: 20px;
