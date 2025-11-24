@@ -307,27 +307,46 @@ async function confirmarSair() {
     try {
         console.log('🚪 Fazendo logout...');
 
-        if (window.apiService) {
-            // Fazer logout na API
-            await window.apiService.logout();
-        }
 
-        // Fechar popup
         fecharPopupSair();
 
-        // Redirecionar para login
-        alert('Saindo da conta...');
-        // Ajuste o caminho conforme necessário
-        window.location.href = 'tela_1 - login.html';
+        if (window.apiService) {
+            // Fazer logout na API
+            try {
+                await window.apiService.logout();
+            } catch (error) {
+                console.warn('Aviso: Erro ao fazer logout na API (continuando mesmo assim):', error);
+            }
+        }
+
+        // Limpar todos os dados de autenticação do localStorage
+        // Isso garante que mesmo se o logout da API falhar, os dados locais são limpos
+        localStorage.removeItem(window.CONFIG?.STORAGE_KEYS?.TOKEN || 'safebite_token');
+        localStorage.removeItem(window.CONFIG?.STORAGE_KEYS?.USER || 'safebite_user');
+        
+        // Remover token do apiService também
+        if (window.apiService) {
+            window.apiService.removeToken();
+        }
+
+        console.log('✅ Dados de autenticação limpos. Redirecionando...');
+
+        // Fechar popup
+        
+
+        // Usar replace() em vez de href para evitar problemas com histórico e CORS
+        // O replace() substitui a entrada atual no histórico, impedindo que o usuário volte para a página de perfil
+        window.location.replace('autenticacao/tela_1 - inicial.html');
         
     } catch (error) {
-        console.error('❌ Erro ao fazer logout:', error);
+        localStorage.removeItem(window.CONFIG?.STORAGE_KEYS?.TOKEN || 'safebite_token');
+        localStorage.removeItem(window.CONFIG?.STORAGE_KEYS?.USER || 'safebite_user');
         // Mesmo com erro, limpar dados locais e redirecionar
         if (window.apiService) {
             window.apiService.removeToken();
         }
-        localStorage.removeItem(window.CONFIG?.STORAGE_KEYS?.USER || 'safebite_user');
-        window.location.href = 'tela_1 - login.html';
+        // Redirecionar mesmo com erro
+        window.location.replace('autenticacao/tela_1 - inicial.html');
     }
 }
 

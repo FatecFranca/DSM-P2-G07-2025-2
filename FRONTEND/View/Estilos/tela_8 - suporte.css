@@ -1,6 +1,10 @@
 /* Estilos específicos para a página de suporte */
 /* Os estilos comuns estão no global.css */
 
+main.suporte-content {
+    text-align: center;
+}
+
 footer {
     margin-top: 15rem;
 }
