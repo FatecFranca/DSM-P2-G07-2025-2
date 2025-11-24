@@ -2,9 +2,9 @@
 Grupo 07  2o. ciclo DSM PI - 2025 - 2 - SafeBite
 
 Nomes dos integrantes:
-Amanda Cristina Olegário
-Gabriel Sanches Martins
-Luis Eduardo de Campos
+Amanda Cristina Olegário; 
+Gabriel Sanches Martins; 
+Luis Eduardo de Campos; 
 Martha Vitória Guidetti da Silva
 
 Navegação do protótipo Figma:
