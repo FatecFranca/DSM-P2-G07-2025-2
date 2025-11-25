@@ -51,6 +51,13 @@ function goBack() {
 function ativarEdicao() {
     body.classList.add('modo-edicao');
     
+    // Preencher input do nome com o valor atual do display
+    const nomeDisplay = document.getElementById('nome-usuario');
+    const nomeInput = document.getElementById('nome-usuario-input');
+    if (nomeDisplay && nomeInput) {
+        nomeInput.value = nomeDisplay.textContent;
+    }
+    
     // Tornar campos editáveis
     const campos = document.querySelectorAll('.campo-valor');
     campos.forEach(campo => {
@@ -65,6 +72,20 @@ function ativarEdicao() {
 // Salvar edições
 async function salvarEdicao() {
     let valido = true;
+
+    // Validação do nome (obrigatório)
+    const nomeInput = document.getElementById('nome-usuario-input');
+    let nomeValor = null;
+    if (nomeInput) {
+        const nomeTexto = nomeInput.value.trim();
+        if (nomeTexto.length < 2) {
+            nomeInput.classList.add('invalido');
+            valido = false;
+        } else {
+            nomeInput.classList.remove('invalido');
+            nomeValor = nomeTexto;
+        }
+    }
 
     // Validação do telefone
     const telefone = document.getElementById('telefone-usu');
@@ -121,6 +142,9 @@ async function salvarEdicao() {
 
     // Preparar dados para envio
     const dadosAtualizacao = {};
+    if (nomeValor !== null) {
+        dadosAtualizacao.nome_completo = nomeValor;
+    }
     if (telefoneValor !== null) {
         dadosAtualizacao.telefone = telefoneValor;
     }
@@ -156,6 +180,19 @@ async function salvarEdicao() {
         }
 
         // Atualizar valores na interface
+        if (nomeValor) {
+            const nomeDisplay = document.getElementById('nome-usuario');
+            if (nomeDisplay) {
+                nomeDisplay.textContent = nomeValor;
+            }
+            // Atualizar iniciais se não houver foto
+            const perfilFotoContainer = document.querySelector('.perfil-foto');
+            const iniciaisPerfil = document.getElementById('iniciais-perfil');
+            if (perfilFotoContainer && !perfilFotoContainer.classList.contains('has-photo') && iniciaisPerfil) {
+                const iniciais = extrairIniciais(nomeValor);
+                iniciaisPerfil.textContent = iniciais;
+            }
+        }
         if (telefoneValor) {
             telefone.value = telefoneValor;
         }
@@ -184,49 +221,6 @@ async function salvarEdicao() {
     }
 }
 
-// Editar nome do usuário
-async function editarNome() {
-    const nomeElemento = document.getElementById('nome-usuario');
-    const novoNome = prompt('Digite o novo nome:', nomeElemento.textContent);
-    
-    if (novoNome && novoNome.trim() !== '') {
-        try {
-            console.log('💾 Atualizando nome do usuário...');
-
-            if (!window.apiService) {
-                throw new Error('Serviço de API não disponível');
-            }
-
-            // Atualizar nome na API
-            const response = await window.apiService.updateUserProfile({
-                nome_completo: novoNome.trim()
-            });
-
-            console.log('✅ Nome atualizado:', response);
-
-            if (!response || !response.success) {
-                throw new Error(response?.message || 'Erro ao atualizar nome');
-            }
-
-            // Atualizar na interface
-            nomeElemento.textContent = novoNome.trim();
-            
-            // Atualizar iniciais se não houver foto
-            const perfilFotoContainer = document.querySelector('.perfil-foto');
-            const iniciaisPerfil = document.getElementById('iniciais-perfil');
-            if (perfilFotoContainer && !perfilFotoContainer.classList.contains('has-photo') && iniciaisPerfil) {
-                const iniciais = extrairIniciais(novoNome.trim());
-                iniciaisPerfil.textContent = iniciais;
-            }
-            
-            alert('Nome atualizado com sucesso!');
-            
-        } catch (error) {
-            console.error('❌ Erro ao atualizar nome:', error);
-            alert('Erro ao atualizar nome: ' + (error.message || 'Erro desconhecido'));
-        }
-    }
-}
 
 // Editar restrições
 async function editarRestricoes() {
@@ -672,8 +666,14 @@ async function carregarPerfil() {
 function preencherDadosUsuario(userData) {
     // Nome
     const nomeEl = document.getElementById('nome-usuario');
-    if (nomeEl && userData.nome_completo) {
-        nomeEl.textContent = userData.nome_completo;
+    const nomeInput = document.getElementById('nome-usuario-input');
+    if (userData.nome_completo) {
+        if (nomeEl) {
+            nomeEl.textContent = userData.nome_completo;
+        }
+        if (nomeInput) {
+            nomeInput.value = userData.nome_completo;
+        }
     }
 
     // Telefone
@@ -979,7 +979,6 @@ window.closeMenu = closeMenu;
 window.goBack = goBack;
 window.ativarEdicao = ativarEdicao;
 window.salvarEdicao = salvarEdicao;
-window.editarNome = editarNome;
 window.editarRestricoes = editarRestricoes;
 window.abrirPopupSair = abrirPopupSair;
 window.fecharPopupSair = fecharPopupSair;

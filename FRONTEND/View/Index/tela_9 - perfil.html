@@ -54,12 +54,14 @@
                 <input type="file" id="foto-perfil-input" accept="image/*" hidden>
             </div>
 
-            <!-- Nome e botão Editar -->
+            <!-- Nome -->
             <div class="perfil-info">
-                <h2 id="nome-usuario"></h2>
-                <span class="icone-editar-nome" onclick="editarNome()" aria-label="Editar nome">✎ᝰ</span>
-                <button id="btn-editar" class="btn-editar" onclick="ativarEdicao()">Editar</button>
-                <button id="btn-salvar" class="btn-salvar" onclick="salvarEdicao()" aria-label="Salvar Alterações">Salvar</button> 
+                <h2 id="nome-usuario" class="nome-usuario-display"></h2>
+                <div class="campo-nome-wrapper">
+                    <input type="text" class="campo-valor campo-nome" id="nome-usuario-input" 
+                        name="nome-usuario" readonly>
+                </div>
+                <div class="invalid-feedback">Por favor, informe um nome válido (mínimo 2 caracteres)!</div>
             </div>
 
         </div>
@@ -72,7 +74,6 @@
                 <div class="campo">
                     <label for="telefone-usu">
                         Telefone
-                        <span class="icone-editar-campo">✎ᝰ</span>
                     </label>
                     <input type="tel" class="campo-valor" id="telefone-usu" name="telefone-usu" 
                         value="(XX) XXXXX-XXXX" readonly>
@@ -83,7 +84,6 @@
                 <div class="campo">
                     <label for="idade-usu">
                         Idade
-                        <span class="icone-editar-campo">✎ᝰ</span>
                     </label>
                     <input type="text" class="campo-valor" id="idade-usu" name="idade-usu" 
                         value="XX anos" readonly>
@@ -94,7 +94,6 @@
                 <div class="campo campo-email">
                     <label for="email-info">
                         Dados de email
-                        <span class="icone-editar-campo">✎ᝰ</span>
                     </label>
                     <div class="email-info" id="email-info">
                         E-mail: <br>
@@ -109,7 +108,6 @@
 
                 <!-- Campo Restrições (linha 2, coluna 2) -->
                 <div class="campo campo-restricoes">
-                    <span class="icone-editar-campo" onclick="editarRestricoes()">✎ᝰ</span>
                     <div class="icone-alerta"><img src="../Images/alerta.png" alt="alerta"></div>
                     <div class="restricoes-titulo">RESTRIÇÕES!!!</div>
                     <div class="restricoes-texto">
@@ -121,8 +119,10 @@
             </div>
         </form>
 
-        <!-- Botões: Adicionar conta e Sair -->
+        <!-- Botões: Editar, Salvar, Adicionar conta e Sair -->
         <div class="botoes-inferiores">
+            <button id="btn-editar" class="btn-editar" onclick="ativarEdicao()">Editar</button>
+            <button id="btn-salvar" class="btn-salvar" onclick="salvarEdicao()" aria-label="Salvar Alterações">Salvar</button>
             <button id="btn-adicionar" class="btn-adicionar" onclick="adicionarConta()" 
                     aria-label="Adicionar nova Conta">
                 Adicionar nova conta

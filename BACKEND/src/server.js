@@ -115,10 +115,26 @@ app.use('/uploads', (req, res, next) => {
   next();
 }, express.static(path.join(__dirname, '../uploads')));
 
-// Rate limiting
+// Rate limiting - mais permissivo em desenvolvimento
+const isDevelopment = process.env.NODE_ENV === 'development' || !process.env.NODE_ENV;
 const limiter = rateLimit({
   windowMs: parseInt(process.env.RATE_LIMIT_WINDOW_MS) || 15 * 60 * 1000, // 15 minutos
-  max: parseInt(process.env.RATE_LIMIT_MAX_REQUESTS) || 100 // limite de 100 requisições por IP
+  max: parseInt(process.env.RATE_LIMIT_MAX_REQUESTS) || (isDevelopment ? 1000 : 100), // 1000 em dev, 100 em produção
+  message: {
+    success: false,
+    message: 'Muitas requisições. Tente novamente mais tarde.',
+    code: 'TOO_MANY_REQUESTS'
+  },
+  standardHeaders: true, // Retorna rate limit info nos headers
+  legacyHeaders: false, // Desabilita headers legados
+  // Em desenvolvimento, permitir mais requisições e resetar mais rápido
+  skip: (req) => {
+    // Em desenvolvimento, não aplicar rate limit em rotas de health check
+    if (isDevelopment && req.path === '/health') {
+      return true;
+    }
+    return false;
+  }
 });
 app.use('/api/', limiter);
 

@@ -84,15 +84,18 @@ body.menu-open .perfil-container {
     display: flex;
 }
 
-/* Nome e botão Editar na mesma linha */
+/* Nome */
 .perfil-info {
     display: flex;
-    justify-content: center;
+    flex-direction: column;
     align-items: center;
-    gap: 1rem;
-    flex-wrap: wrap;
     text-align: center;
     margin-bottom: 3rem;
+    max-width: 100%;
+}
+
+.perfil-info label {
+    display: none;
 }
 
 .perfil-info h2 {
@@ -100,20 +103,33 @@ body.menu-open .perfil-container {
     font-size: clamp(1.25rem, 2.5vw, 1.5rem);
     font-weight: 600;
     margin: 0;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
 }
 
-.icone-editar-nome {
+.campo-nome-wrapper {
     display: none;
-    font-size: 1.25rem;
-    cursor: pointer;
-    opacity: 0.7;
-    transition: opacity 0.2s ease, transform 0.2s ease;
+    position: relative;
+    width: 100%;
+    max-width: 20rem;
 }
 
-.icone-editar-nome:hover {
-    opacity: 1;
-    transform: scale(1.1);
+.campo-nome {
+    display: none;
+    background-color: var(--color-dados-usu);
+    border-radius: 2rem;
+    padding: 0.8rem 1rem;
+    width: 100%;
+    font-family: 'Vast_Shadow', cursive;
+    font-size: clamp(1.25rem, 2.5vw, 1.5rem);
+    font-weight: 600;
+    color: #000;
+    text-align: center;
+    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.1) inset;
+    border: 0.1375rem solid #000;
 }
+
 
 /* Botões Editar e Salvar */
 .btn-editar,
@@ -218,11 +234,6 @@ body.menu-open .perfil-container {
     position: relative;
 }
 
-.campo-restricoes .icone-editar-campo {
-    pointer-events: auto;
-    margin-top: 0.5rem;
-    margin-left: 24rem;
-}
 
 .restricoes-titulo {
     font-weight: bold;
@@ -245,23 +256,24 @@ body.menu-open .perfil-container {
     border-radius: 50%;
 }
 
-.icone-editar-campo {
-    display: none;
-    font-size: 1rem;
-    margin-left: 0.25rem;
-    cursor: pointer;
-    opacity: 0.6;
-    transition: opacity 0.2s ease;
-}
-
-.icone-editar-campo:hover {
-    opacity: 1;
-}
 
 /* Modo de edição */
-body.modo-edicao .icone-editar-nome,
-body.modo-edicao .icone-editar-campo {
-    display: inline;
+
+body.modo-edicao .nome-usuario-display {
+    display: none;
+}
+
+body.modo-edicao .campo-nome-wrapper {
+    display: block;
+}
+
+body.modo-edicao .campo-nome {
+    display: block;
+    pointer-events: auto;
+    background-color: #fff;
+    border: 0.125rem solid var(--color-border);
+    border-radius: 2rem;
+    padding: 0.8rem;
 }
 
 body.modo-edicao .campo-valor {
@@ -309,12 +321,6 @@ body.modo-edicao .campo-restricoes {
     box-sizing: border-box;
 }
 
-body.modo-edicao .campo-restricoes .icone-editar-campo {
-    position: absolute;
-    top: 0.5rem;
-    right: 0.5rem;
-    margin: 0;
-}
 
 /* Validação */
 .invalid-feedback {
@@ -330,6 +336,10 @@ body.modo-edicao .campo-restricoes .icone-editar-campo {
 }
 
 .campo-valor.invalido + .invalid-feedback {
+    display: block;
+}
+
+.campo-nome.invalido + .invalid-feedback {
     display: block;
 }
 
@@ -585,10 +595,6 @@ body.modo-edicao .campo-restricoes .icone-editar-campo {
         padding: 0.6rem;
     }
     
-    body.modo-edicao .campo-restricoes .icone-editar-campo {
-        top: 0.3rem;
-        right: 0.3rem;
-    }
 
     .botoes-inferiores {
         flex-direction: column;
@@ -632,11 +638,6 @@ body.modo-edicao .campo-restricoes .icone-editar-campo {
         min-height: auto;
     }
     
-    body.modo-edicao .campo-restricoes .icone-editar-campo {
-        top: 0.2rem;
-        right: 0.2rem;
-        font-size: 0.875rem;
-    }
     
     body.modo-edicao .restricoes-titulo {
         font-size: clamp(0.75rem, 2vw, 0.875rem);

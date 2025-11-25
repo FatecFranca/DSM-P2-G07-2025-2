@@ -110,6 +110,19 @@ class ApiService {
 
       // Se a resposta não foi bem-sucedida, lançar erro
       if (!response.ok) {
+        // Tratamento especial para erro de rate limit (429)
+        if (response.status === 429) {
+          const retryAfter = response.headers.get('Retry-After');
+          const errorMessage = retryAfter 
+            ? `Muitas requisições. Tente novamente em ${retryAfter} segundos.`
+            : 'Muitas requisições. Aguarde alguns instantes antes de tentar novamente.';
+          const error = new Error(errorMessage);
+          error.status = 429;
+          error.data = data;
+          error.code = 'TOO_MANY_REQUESTS';
+          throw error;
+        }
+        
         const error = new Error(data.message || `Erro ${response.status}: ${response.statusText}`);
         error.status = response.status;
         error.data = data;
