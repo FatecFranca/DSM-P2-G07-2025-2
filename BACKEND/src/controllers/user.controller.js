@@ -202,8 +202,66 @@ const updateProfilePhoto = async (req, res) => {
   }
 };
 
+/**
+ * Remover foto de perfil
+ * DELETE /api/users/profile/photo
+ */
+const removeProfilePhoto = async (req, res) => {
+  try {
+    const userId = req.user.id;
+
+    const user = await User.findByPk(userId);
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: 'Usuário não encontrado'
+      });
+    }
+
+    // Se houver foto, deletar arquivo físico
+    if (user.foto_perfil) {
+      const oldPhotoPath = path.join(
+        process.env.UPLOAD_PATH || './uploads',
+        path.basename(user.foto_perfil)
+      );
+      if (fs.existsSync(oldPhotoPath)) {
+        try {
+          fs.unlinkSync(oldPhotoPath);
+        } catch (err) {
+          logger.error('Erro ao deletar foto antiga', err);
+        }
+      }
+    }
+
+    // Remover referência da foto no banco de dados
+    await user.update({ foto_perfil: null });
+    await user.reload();
+
+    res.json({
+      success: true,
+      message: 'Foto de perfil removida com sucesso',
+      data: {
+        user: {
+          id: user.id,
+          foto_perfil: null
+        }
+      }
+    });
+  } catch (error) {
+    logger.error('Erro ao remover foto de perfil', error);
+
+    res.status(500).json({
+      success: false,
+      message: 'Erro ao remover foto de perfil',
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined
+    });
+  }
+};
+
 module.exports = {
   getProfile,
   updateProfile,
-  updateProfilePhoto
+  updateProfilePhoto,
+  removeProfilePhoto
 };

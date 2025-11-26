@@ -398,6 +398,12 @@ function init() {
     attachInteractiveEffects(btnSalvar);
     attachInteractiveEffects(btnAdicionar);
     attachInteractiveEffects(btnSair);
+    
+    // Attach ao botão de remover foto
+    const btnRemoverFoto = document.getElementById('btn-remover-foto');
+    if (btnRemoverFoto) {
+        attachInteractiveEffects(btnRemoverFoto);
+    }
 
     // Attach aos botões do popup
     const btnCancelar = document.querySelector('.btn-cancelar');
@@ -578,6 +584,12 @@ async function uploadFotoPerfil(file) {
                 iniciaisPerfil.style.display = 'none';
             }
 
+            // Mostrar botão de remover foto
+            const btnRemoverFoto = document.getElementById('btn-remover-foto');
+            if (btnRemoverFoto) {
+                btnRemoverFoto.style.display = 'block';
+            }
+
             // Adicionar efeito de transição
             if (fotoPerfilImg) {
                 fotoPerfilImg.style.opacity = '0';
@@ -712,6 +724,8 @@ function preencherDadosUsuario(userData) {
     const iniciaisPerfil = document.getElementById('iniciais-perfil');
     const perfilFotoContainer = document.querySelector('.perfil-foto');
     
+    const btnRemoverFoto = document.getElementById('btn-remover-foto');
+    
     if (userData.foto_perfil) {
         // Se tem foto, mostrar foto e esconder iniciais
         if (fotoPerfil) {
@@ -724,6 +738,10 @@ function preencherDadosUsuario(userData) {
         }
         if (iniciaisPerfil) {
             iniciaisPerfil.style.display = 'none';
+        }
+        // Mostrar botão de remover foto
+        if (btnRemoverFoto) {
+            btnRemoverFoto.style.display = 'block';
         }
     } else {
         // Se não tem foto, mostrar iniciais
@@ -741,6 +759,10 @@ function preencherDadosUsuario(userData) {
             } else {
                 iniciaisPerfil.textContent = 'U'; // Default
             }
+        }
+        // Esconder botão de remover foto
+        if (btnRemoverFoto) {
+            btnRemoverFoto.style.display = 'none';
         }
     }
 }
@@ -973,6 +995,85 @@ function renderizarReceitas(receitas) {
     receitaCards.forEach(card => attachInteractiveEffects(card));
 }
 
+// ==================== REMOVER FOTO DE PERFIL ====================
+
+/**
+ * Remove a foto de perfil do usuário
+ */
+async function removerFotoPerfil() {
+    const fotoPerfilContainer = document.querySelector('.perfil-foto');
+    const fotoPerfilImg = document.getElementById('foto-perfil-img');
+    const iniciaisPerfil = document.getElementById('iniciais-perfil');
+    const btnRemoverFoto = document.getElementById('btn-remover-foto');
+    const nomeUsuario = document.getElementById('nome-usuario')?.textContent || '';
+
+    // Confirmar ação
+    if (!confirm('Tem certeza que deseja remover sua foto de perfil?')) {
+        return;
+    }
+
+    try {
+        // Mostrar loading
+        if (fotoPerfilContainer) {
+            fotoPerfilContainer.style.opacity = '0.6';
+            fotoPerfilContainer.style.pointerEvents = 'none';
+        }
+
+        console.log('🗑️ Removendo foto de perfil...');
+
+        if (!window.apiService) {
+            throw new Error('Serviço de API não disponível');
+        }
+
+        // Chamar API para remover foto
+        const response = await window.apiService.removeProfilePhoto();
+
+        console.log('✅ Foto removida:', response);
+
+        if (!response || !response.success) {
+            throw new Error(response?.message || 'Erro ao remover foto');
+        }
+
+        // Atualizar interface
+        if (fotoPerfilImg) {
+            fotoPerfilImg.style.display = 'none';
+            fotoPerfilImg.src = '';
+        }
+
+        if (fotoPerfilContainer) {
+            fotoPerfilContainer.classList.remove('has-photo');
+        }
+
+        // Mostrar iniciais
+        if (iniciaisPerfil) {
+            iniciaisPerfil.style.display = 'flex';
+            if (nomeUsuario) {
+                const iniciais = extrairIniciais(nomeUsuario);
+                iniciaisPerfil.textContent = iniciais;
+            } else {
+                iniciaisPerfil.textContent = 'U';
+            }
+        }
+
+        // Esconder botão de remover foto
+        if (btnRemoverFoto) {
+            btnRemoverFoto.style.display = 'none';
+        }
+
+        alert('Foto de perfil removida com sucesso!');
+
+    } catch (error) {
+        console.error('❌ Erro ao remover foto:', error);
+        alert('Erro ao remover foto: ' + (error.message || 'Erro desconhecido'));
+    } finally {
+        // Restaurar estado
+        if (fotoPerfilContainer) {
+            fotoPerfilContainer.style.opacity = '1';
+            fotoPerfilContainer.style.pointerEvents = 'auto';
+        }
+    }
+}
+
 // ==================== EXPOR FUNÇÕES GLOBAIS ====================
 window.toggleMenu = toggleMenu;
 window.closeMenu = closeMenu;
@@ -985,6 +1086,7 @@ window.fecharPopupSair = fecharPopupSair;
 window.confirmarSair = confirmarSair;
 window.adicionarConta = adicionarConta;
 window.abrirReceita = abrirReceita;
+window.removerFotoPerfil = removerFotoPerfil;
 
 // ==================== INICIALIZAR AO CARREGAR ====================
 document.addEventListener('DOMContentLoaded', init);

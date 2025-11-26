@@ -26,6 +26,75 @@ body.menu-open .perfil-container {
     align-items: center;
     margin-bottom: var(--spacing-md);
     position: relative;
+    width: 11rem;
+    height: 11rem;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+/* Botão de remover foto */
+.btn-remover-foto {
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 2.5rem;
+    height: 2.5rem;
+    border-radius: 50%;
+    background-color: #ff4444;
+    border: 0.2rem solid #000;
+    color: white;
+    font-size: 1.8rem;
+    font-weight: bold;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+    transition: all 0.2s ease;
+    z-index: 10;
+    padding: 0;
+    line-height: 1;
+    transform: translate(25%, -25%);
+}
+
+.btn-remover-foto:hover {
+    background-color: #cc0000;
+    transform: scale(1.1);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+}
+
+.btn-remover-foto:active {
+    transform: scale(0.95);
+}
+
+.btn-remover-foto.hovered {
+    background-color: #cc0000;
+    transform: scale(1.1);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+}
+
+.btn-remover-foto.pressed {
+    transform: scale(0.95);
+}
+
+.btn-remover-foto span {
+    display: block;
+    margin-top: -0.2rem;
+}
+
+/* Responsividade do botão de remover foto */
+@media (max-width: 480px) {
+    .perfil-foto {
+        width: 11rem;
+        height: 11rem;
+    }
+    
+    .btn-remover-foto {
+        width: 2rem;
+        height: 2rem;
+        font-size: 1.4rem;
+        transform: translate(20%, -20%);
+    }
 }
 
 .perfil-foto img {

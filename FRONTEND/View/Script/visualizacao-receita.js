@@ -86,8 +86,14 @@ async function carregarReceita() {
         }
         
         console.log('📡 Buscando receita na API...');
-        // Buscar receita da API
-        const response = await window.apiService.getRecipeById(receitaId);
+        // Buscar receita da API e restrições do usuário em paralelo
+        const [response, userRestrictionsResponse] = await Promise.all([
+            window.apiService.getRecipeById(receitaId),
+            window.apiService.getUserRestrictions().catch(err => {
+                console.warn('⚠️ Erro ao buscar restrições do usuário:', err);
+                return { success: false, data: [] };
+            })
+        ]);
         
         console.log('✅ Resposta recebida da API:', response);
         
@@ -122,12 +128,23 @@ async function carregarReceita() {
             throw new Error('Dados da receita não encontrados na resposta da API.');
         }
         
+        // Processar restrições do usuário
+        let userRestrictionIds = new Set();
+        if (userRestrictionsResponse && userRestrictionsResponse.success && userRestrictionsResponse.data) {
+            userRestrictionsResponse.data.forEach(ur => {
+                if (ur.restriction_id) {
+                    userRestrictionIds.add(ur.restriction_id);
+                }
+            });
+        }
+        console.log('🔒 IDs das restrições do usuário:', Array.from(userRestrictionIds));
+        
         // Remover loading
         removerLoading();
         
         // Mapear dados da API para o formato esperado
         console.log('🔄 Mapeando dados da receita...');
-        const receita = mapearDadosReceita(receitaData);
+        const receita = mapearDadosReceita(receitaData, userRestrictionIds);
         console.log('✅ Receita mapeada:', receita);
         
         // Preencher a página com os dados
@@ -144,7 +161,7 @@ async function carregarReceita() {
 }
 
 // --- Função para mapear dados da API para o formato esperado ---
-function mapearDadosReceita(receitaData) {
+function mapearDadosReceita(receitaData, userRestrictionIds = new Set()) {
     // Processar ingredientes (pode ser array ou string JSON)
     let ingredientes = [];
     if (Array.isArray(receitaData.ingredientes)) {
@@ -211,8 +228,12 @@ function mapearDadosReceita(receitaData) {
     let restricoes = [];
     if (receitaData.restrictions && Array.isArray(receitaData.restrictions)) {
         restricoes = receitaData.restrictions.map(r => {
+            const restrictionId = r.restriction?.id || r.restriction_id;
             const nomeRestricao = r.restriction?.nome || r.restricao_nome || 'Restrição desconhecida';
             const ingrediente = r.ingrediente_restritivo || '';
+            
+            // Verificar se o usuário tem esta restrição
+            const usuarioTemRestricao = restrictionId && userRestrictionIds.has(restrictionId);
             
             // Obter palavras-chave
             let palavrasChave = [];
@@ -230,8 +251,15 @@ function mapearDadosReceita(receitaData) {
                         : []);
             }
             
-            // Construir texto da restrição
-            let textoRestricao = `<strong>${nomeRestricao}</strong>`;
+            // Construir texto da restrição com ícone de alerta se o usuário tiver
+            let textoRestricao = '';
+            
+            // Adicionar ícone de alerta se o usuário tiver esta restrição
+            if (usuarioTemRestricao) {
+                textoRestricao += '<span class="icone-alerta-restricao" aria-label="Você tem esta restrição">⚠️</span> ';
+            }
+            
+            textoRestricao += `<strong>${nomeRestricao}</strong>`;
             
             if (ingrediente) {
                 textoRestricao += `: ${ingrediente}`;
@@ -241,14 +269,17 @@ function mapearDadosReceita(receitaData) {
                 textoRestricao += `<br><span style="font-size: 0.9em; color: #666; margin-left: 1rem;">Palavras-chave: ${palavrasChave.join(', ')}</span>`;
             }
             
-            return textoRestricao;
+            return {
+                texto: textoRestricao,
+                temAlerta: usuarioTemRestricao
+            };
         });
         
         if (restricoes.length === 0) {
-            restricoes = ['Nenhuma restrição identificada.'];
+            restricoes = [{ texto: 'Nenhuma restrição identificada.', temAlerta: false }];
         }
     } else {
-        restricoes = ['Nenhuma restrição identificada.'];
+        restricoes = [{ texto: 'Nenhuma restrição identificada.', temAlerta: false }];
     }
     
     // Processar imagem
@@ -399,11 +430,19 @@ function preencherReceita(receita) {
     const restricoesEl = document.querySelector('.bloco-restricoes');
     if (restricoesEl && receita.restricoes) {
         const restContent = restricoesEl.querySelector('ul');
+        // Processar restrições - pode ser array de strings ou array de objetos
+        const restricoesHTML = receita.restricoes.map(item => {
+            const texto = typeof item === 'string' ? item : item.texto;
+            const temAlerta = typeof item === 'object' ? item.temAlerta : false;
+            const classeAlerta = temAlerta ? ' restricao-com-alerta' : '';
+            return `<li class="${classeAlerta}">${texto}</li>`;
+        }).join('');
+        
         if (restContent) {
             // Usar innerHTML para permitir formatação HTML (negrito, quebras de linha)
-            restContent.innerHTML = receita.restricoes.map(item => `<li>${item}</li>`).join('');
+            restContent.innerHTML = restricoesHTML;
         } else {
-            restricoesEl.innerHTML = `<h2>Restrições:</h2><ul>${receita.restricoes.map(item => `<li>${item}</li>`).join('')}</ul>`;
+            restricoesEl.innerHTML = `<h2>Restrições:</h2><ul>${restricoesHTML}</ul>`;
         }
     }
     

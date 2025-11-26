@@ -445,6 +445,15 @@ class ApiService {
       contentType: null // FormData define o Content-Type automaticamente
     });
   }
+
+  /**
+   * Remove a foto de perfil do usuário
+   */
+  async removeProfilePhoto() {
+    return this.request('/users/profile/photo', {
+      method: 'DELETE'
+    });
+  }
 }
 
 // Criar instância única do serviço

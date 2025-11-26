@@ -88,6 +88,13 @@ router.put(
 );
 
 /**
+ * @route   DELETE /api/users/profile/photo
+ * @desc    Remover foto de perfil
+ * @access  Private
+ */
+router.delete('/profile/photo', authenticate, userController.removeProfilePhoto);
+
+/**
  * @swagger
  * /users/favorites:
  *   get:
