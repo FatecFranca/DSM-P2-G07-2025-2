@@ -414,6 +414,20 @@ class ApiService {
   }
 
   /**
+   * Obtém todas as receitas do usuário (incluindo rascunhos)
+   * @param {string} status - Status opcional para filtrar ('publicada' ou 'rascunho'). Se não fornecido, retorna todas.
+   */
+  async getUserRecipes(status = null) {
+    const queryParams = new URLSearchParams();
+    if (status) {
+      queryParams.append('status', status);
+    }
+    const queryString = queryParams.toString();
+    const endpoint = `/users/recipes${queryString ? `?${queryString}` : ''}`;
+    return this.request(endpoint);
+  }
+
+  /**
    * Atualiza a foto de perfil do usuário
    * @param {File} photoFile - Arquivo de imagem da foto de perfil
    */

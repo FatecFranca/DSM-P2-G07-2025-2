@@ -82,7 +82,7 @@ function attachInteractiveEffects(element) {
 // ==================== FUNÇÕES DE CARREGAMENTO DE RECEITAS ====================
 
 /**
- * Carrega as receitas publicadas do usuário logado
+ * Carrega todas as receitas do usuário logado (incluindo rascunhos)
  */
 async function carregarReceitasPublicadas() {
     const containerReceitas = document.getElementById('container-receitas');
@@ -104,10 +104,10 @@ async function carregarReceitasPublicadas() {
             throw new Error('Serviço de API não disponível. Verifique se os scripts foram carregados corretamente.');
         }
 
-        console.log('📡 Buscando receitas publicadas do usuário...');
+        console.log('📡 Buscando receitas do usuário (incluindo rascunhos)...');
         
-        // Buscar receitas publicadas do usuário
-        const response = await window.apiService.getUserPublishedRecipes();
+        // Buscar todas as receitas do usuário (incluindo rascunhos)
+        const response = await window.apiService.getUserRecipes();
         
         console.log('✅ Resposta recebida da API:', response);
 
@@ -446,7 +446,7 @@ function init() {
         }
     }, 100);
 
-    // Carregar receitas publicadas (apenas se não estiver na página de registro)
+    // Carregar receitas do usuário, incluindo rascunhos (apenas se não estiver na página de registro)
     if (!isRegistroReceitaPage()) {
         setTimeout(() => {
             if (window.apiService) {
